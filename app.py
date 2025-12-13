@@ -2,6 +2,7 @@ import os
 import requests
 import random
 import json
+import re # Herramienta para limpieza de texto
 from flask import Flask, render_template, request, jsonify
 from groq import Groq
 
@@ -12,7 +13,7 @@ client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),
 )
 
-# --- MODELO NUEVO (ACTUALIZADO) ---
+# Usamos el modelo nuevo y potente
 MODELO_IA = "llama-3.3-70b-versatile"
 
 @app.route("/")
@@ -27,7 +28,7 @@ def nasa_chat():
         user_query = data.get('user_query')
         lang = data.get('lang', 'es')
         
-        role_msg = "Eres la IA del sistema AZTLAN OS. Responde de forma técnica."
+        role_msg = "Eres la IA del sistema AZTLAN OS. Responde de forma técnica y breve."
         if lang == 'en': role_msg += " RESPONDE EN INGLÉS."
         
         chat_completion = client.chat.completions.create(
@@ -37,45 +38,76 @@ def nasa_chat():
         return jsonify({"answer": chat_completion.choices[0].message.content})
 
     except Exception as e:
-        error_msg = str(e)
-        print(f"ERROR: {error_msg}")
-        return jsonify({"answer": f"⚠️ ERROR DE SISTEMA: {error_msg}"})
+        print(f"ERROR CHAT: {e}")
+        return jsonify({"answer": f"⚠️ ERROR DE SISTEMA: {str(e)}"})
 
-# --- API 2: PREDICCIÓN ML ---
+# --- API 2: PREDICCIÓN ML (BLINDADA) ---
 @app.route("/api/aztlan-predict", methods=["POST"])
 def predict():
     try:
         data = request.json
         lang = data.get('lang', 'es')
-        prompt = f"Analiza exoplaneta: Radio={data.get('koi_prad')}, Temp={data.get('koi_steff')}. Responde JSON: prediccion, probabilidad, analisis_tecnico. Idioma: {lang}"
+        
+        # Prompt estricto para JSON
+        prompt = f"""
+        Actúa como un algoritmo científico.
+        Datos: Radio={data.get('koi_prad')} R_Earth, Temp={data.get('koi_steff')} K.
+        Idioma: {'INGLÉS' if lang == 'en' else 'ESPAÑOL'}.
+        
+        Tarea: Determina si es "CANDIDATO CONFIRMADO" o "FALSO POSITIVO".
+        Responde ÚNICAMENTE con un JSON válido con este formato:
+        {{
+            "prediccion": "TEXTO_AQUI",
+            "probabilidad": "XX%",
+            "analisis_tecnico": "Explicación breve."
+        }}
+        NO añadidas comillas markdown (```json). Solo el JSON puro.
+        """
         
         chat_completion = client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}],
-            model=MODELO_IA, temperature=0.5,
+            model=MODELO_IA, temperature=0.1, # Temperatura baja para ser preciso
         )
-        return chat_completion.choices[0].message.content
+        
+        content = chat_completion.choices[0].message.content
+        
+        # --- LIMPIEZA DE RESPUESTA (EL TRUCO) ---
+        # A veces la IA pone ```json ... ```, esto lo quita:
+        content_clean = content.replace("```json", "").replace("```", "").strip()
+        
+        # Intentamos convertirlo a diccionario Python y luego a JSON real
+        datos_json = json.loads(content_clean)
+        
+        return jsonify(datos_json)
+
     except Exception as e:
-        return jsonify({"prediccion": "ERROR", "probabilidad": "0%", "analisis_tecnico": f"Fallo: {str(e)}"})
+        print(f"ERROR PREDICT: {e}")
+        # Si falla, devolvemos un JSON de error manual para que no se rompa la web
+        return jsonify({
+            "prediccion": "ERROR DE CÁLCULO", 
+            "probabilidad": "0%", 
+            "analisis_tecnico": f"No se pudo procesar la respuesta neuronal. Detalles: {str(e)}"
+        })
 
 # --- API 3: REPORTE CIENTÍFICO ---
 @app.route("/api/aztlan-deep", methods=["POST"])
 def deep_scan():
     try:
         data = request.json
-        prompt = f"Reporte corto sobre {data.get('planet_name')}."
+        prompt = f"Genera un reporte científico muy breve sobre el exoplaneta {data.get('planet_name')}."
         chat_completion = client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}], model=MODELO_IA,
         )
         return jsonify({"report": chat_completion.choices[0].message.content})
     except:
-        return jsonify({"report": "Sin datos."})
+        return jsonify({"report": "Datos insuficientes para el reporte."})
 
 # --- API 4: GALERÍA NASA ---
 @app.route("/api/nasa-feed")
 def nasa_feed():
     try:
         query = request.args.get('q', 'galaxy')
-        url = f"https://images-api.nasa.gov/search?q={query}&media_type=image"
+        url = f"[https://images-api.nasa.gov/search?q=](https://images-api.nasa.gov/search?q=){query}&media_type=image"
         r = requests.get(url).json()
         items = r['collection']['items'][:8]
         images = [{"url": item['links'][0]['href'], "title": item['data'][0]['title']} for item in items if 'links' in item]
@@ -88,13 +120,13 @@ def nasa_feed():
 def game_analysis():
     try:
         data = request.json
-        prompt = f"Jugador obtuvo {data.get('score')} puntos. Comentario breve militar."
+        prompt = f"Jugador obtuvo {data.get('score')} puntos. Comentario breve militar exigente."
         chat_completion = client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}], model=MODELO_IA, max_tokens=60
         )
         return jsonify({"comment": chat_completion.choices[0].message.content})
     except:
-        return jsonify({"comment": "Fin de simulación."})
+        return jsonify({"comment": "Simulación terminada."})
 
 if __name__ == "__main__":
     app.run(debug=True)
