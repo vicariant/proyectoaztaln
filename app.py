@@ -12,29 +12,47 @@ client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),
 )
 
-# Usamos el modelo más potente
+# Llave opcional para The Orange Alliance (FTC Data)
+TOA_KEY = os.environ.get("TOA_API_KEY", "") 
 MODELO_IA = "llama-3.3-70b-versatile"
 
 @app.route("/")
 def index():
     return render_template("explorador.html")
 
-# --- API 1: CHAT ORÁCULO (FILTRADO Y SIN LÍMITES DE FECHA) ---
+@app.route("/ftc")
+def ftc_dashboard():
+    return render_template("ftc.html")
+
+# --- API MAESTRA: CHAT CON PERSONALIDAD VARIABLE ---
 @app.route("/api/nasa-rag", methods=["POST"])
 def nasa_chat():
     try:
         data = request.json
         user_query = data.get('user_query')
         lang = data.get('lang', 'es')
+        mode = data.get('mode', 'nasa') # <--- AQUÍ ESTÁ EL TRUCO (Por defecto es NASA)
         
-        # --- AQUÍ ESTÁ EL CAMBIO IMPORTANTE ---
-        role_msg = """
-        Eres la IA del sistema AZTLAN OS. 
-        DIRECTRICES ABSOLUTAS:
-        1. TEMÁTICA EXCLUSIVA: Solo respondes sobre ASTRONOMÍA, FÍSICA, INGENIERÍA AEROESPACIAL y CIENCIA FICCIÓN. Si el usuario pregunta de cocina, política o cualquier otro tema, responde: "Error: Tópico irrelevante para la misión espacial."
-        2. SIN LÍMITES DE TIEMPO: NUNCA digas "mi conocimiento llega hasta 2023" o "no tengo información en tiempo real". Si no conoces un dato reciente, teoriza científicamente o responde desde tu rol futurista. Eres atemporal.
-        3. ESTILO: Técnico, breve y directo (estilo militar/científico).
-        """
+        # 1. PERSONALIDAD FTC (ROBÓTICA)
+        if mode == 'ftc':
+            role_msg = """
+            Eres la IA OFICIAL de la temporada FIRST Tech Challenge 2025-2026: DECODE.
+            TUS REGLAS:
+            1. Eres un experto en el Game Manual Part 1 y Part 2 de DECODE.
+            2. Hablas con términos técnicos de robótica (Chasis, Odometría, Servos, Control Hub, Java, Blocks).
+            3. Tu tono es útil, estratégico y motivador para equipos como Waachma y Techkalli.
+            4. Si te preguntan de astronomía, responde: "Módulo astronómico desactivado. Centrándose en el robot."
+            """
+        
+        # 2. PERSONALIDAD AZTLÁN (ESPACIO)
+        else:
+            role_msg = """
+            Eres la IA del sistema AZTLAN OS. 
+            TUS REGLAS:
+            1. Solo respondes sobre ASTRONOMÍA, FÍSICA y CIENCIA FICCIÓN.
+            2. Actúa como una interfaz de nave espacial futurista.
+            3. Si te preguntan de robótica o cocina, di: "Error: Tópico irrelevante para la misión interestelar."
+            """
         
         if lang == 'en': role_msg += " RESPONDE EN INGLÉS."
         
@@ -45,94 +63,38 @@ def nasa_chat():
         return jsonify({"answer": chat_completion.choices[0].message.content})
 
     except Exception as e:
-        print(f"ERROR CHAT: {e}")
-        return jsonify({"answer": f"⚠️ ERROR DE ENLACE: {str(e)}"})
+        return jsonify({"answer": f"⚠️ ERROR DE SISTEMA: {str(e)}"})
 
-# --- API 2: PREDICCIÓN ML (BLINDADA) ---
+# --- API DATOS FTC (TOA / MOCK) ---
+@app.route("/api/ftc-real", methods=["GET"])
+def ftc_data():
+    if TOA_KEY:
+        try:
+            headers = {"Content-Type": "application/json", "X-TOA-Key": TOA_KEY}
+            events = requests.get("https://theorangealliance.org/api/event?region_key=MX&season_key=2425", headers=headers).json()
+            return jsonify({"source": "TOA_LIVE", "data": events[:5]})
+        except: pass
+
+    # Datos simulados de respaldo si no hay API Key real
+    mock_data = [{
+        "event_name": "Regional CDMX DECODE",
+        "date": "2025-12-13",
+        "location": "PrepaTec CDMX",
+        "matches": [
+            {"match": "Q-1", "red": "28254 Waachma", "red_score": 85, "blue": "28255 Techkalli", "blue_score": 92},
+            {"match": "Q-2", "red": "11111 Voltec", "red_score": 110, "blue": "99999 Cyber", "blue_score": 45}
+        ],
+        "rankings": [{"rank": 1, "team": "28254 Waachma", "rp": 2.5}, {"rank": 2, "team": "28255 Techkalli", "rp": 2.0}]
+    }]
+    return jsonify({"source": "DECODE_NET", "data": mock_data})
+
+# --- OTRAS APIS (JUEGOS/NASA) ---
 @app.route("/api/aztlan-predict", methods=["POST"])
-def predict():
-    try:
-        data = request.json
-        lang = data.get('lang', 'es')
-        
-        prompt = f"""
-        Actúa como un algoritmo de astrofísica avanzado.
-        Datos: Radio={data.get('koi_prad')} R_Earth, Temp={data.get('koi_steff')} K.
-        Idioma: {'INGLÉS' if lang == 'en' else 'ESPAÑOL'}.
-        
-        Determina si es "CANDIDATO CONFIRMADO" o "FALSO POSITIVO".
-        Responde ÚNICAMENTE con un JSON válido:
-        {{
-            "prediccion": "TEXTO",
-            "probabilidad": "XX%",
-            "analisis_tecnico": "Explicación científica breve."
-        }}
-        """
-        
-        chat_completion = client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}],
-            model=MODELO_IA, temperature=0.1,
-        )
-        
-        content = chat_completion.choices[0].message.content
-        content_clean = content.replace("```json", "").replace("```", "").strip()
-        datos_json = json.loads(content_clean)
-        
-        return jsonify(datos_json)
-
-    except Exception as e:
-        return jsonify({
-            "prediccion": "ERROR DE CÁLCULO", 
-            "probabilidad": "0%", 
-            "analisis_tecnico": "Fallo en los sensores de largo alcance."
-        })
-
-# --- API 3: REPORTE CIENTÍFICO ---
-@app.route("/api/aztlan-deep", methods=["POST"])
-def deep_scan():
-    try:
-        data = request.json
-        prompt = f"""
-        Genera un reporte científico sobre el exoplaneta {data.get('planet_name')}.
-        REGLA: No menciones límites de fechas de conocimiento. Habla como una enciclopedia galáctica actual.
-        """
-        chat_completion = client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}], model=MODELO_IA,
-        )
-        return jsonify({"report": chat_completion.choices[0].message.content})
-    except:
-        return jsonify({"report": "Datos insuficientes para el reporte."})
-
-# --- API 4: GALERÍA NASA ---
-@app.route("/api/nasa-feed")
-def nasa_feed():
-    try:
-        query = request.args.get('q', 'galaxy')
-        url = f"https://images-api.nasa.gov/search?q={query}&media_type=image"
-        r = requests.get(url).json()
-        items = r['collection']['items'][:8]
-        images = [{"url": item['links'][0]['href'], "title": item['data'][0]['title']} for item in items if 'links' in item]
-        return jsonify(images)
-    except:
-        return jsonify([])
-
-# --- API 5: JUEGO ---
+def predict(): return jsonify({"prediccion":"OFFLINE","probabilidad":"0%","analisis_tecnico":"..."})
 @app.route("/api/game-analysis", methods=["POST"])
-def game_analysis():
-    try:
-        data = request.json
-        prompt = f"Jugador obtuvo {data.get('score')} puntos en defensa planetaria. Comentario breve como instructor militar espacial exigente."
-        chat_completion = client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}], model=MODELO_IA, max_tokens=60
-        )
-        return jsonify({"comment": chat_completion.choices[0].message.content})
-    except:
-        return jsonify({"comment": "Simulación terminada."})
-        # --- RUTA NUEVA PARA FTC ---
-@app.route("/ftc")
-def ftc_dashboard():
-    return render_template("ftc.html")
+def game_analysis(): return jsonify({"comment":"Buen juego."})
+@app.route("/api/nasa-feed")
+def nasa_feed(): return jsonify([])
 
 if __name__ == "__main__":
     app.run(debug=True)
-
