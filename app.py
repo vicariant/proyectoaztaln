@@ -35,8 +35,9 @@ def nasa_chat():
             model="llama3-8b-8192", temperature=0.7,
         )
         return jsonify({"answer": chat_completion.choices[0].message.content})
-    except:
-        return jsonify({"answer": "Error de enlace / Link Error."})
+    except Exception as e:
+        print(f"ERROR REAL: {e}") # Para verlo en logs
+        return jsonify({"answer": f"ALERTA DEL SISTEMA: {str(e)}"}) # Para verlo en el chat
 
 # --- API 2: PREDICCIÓN ML (Simulada con IA) ---
 @app.route("/api/aztlan-predict", methods=["POST"])
@@ -119,3 +120,4 @@ def game_analysis():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
