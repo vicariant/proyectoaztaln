@@ -1,110 +1,343 @@
-import os
-import requests
-from flask import Flask, render_template, request, jsonify
-from groq import Groq
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>AZTLAN COMMAND OS v7.0 (COMBAT AI)</title>
 
-app = Flask(__name__)
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
 
-# Configuración de Groq
-client = Groq(
-    api_key=os.environ.get("GROQ_API_KEY"),
-)
+<style>
+/* =================== ESTILOS CORE =================== */
+:root { --bg-deep: #020204; --neon-blue: #00f3ff; --neon-gold: #ffd700; --neon-red: #ff3333; --neon-green: #0aff0a; --panel-bg: rgba(8, 12, 20, 0.95); --font-title: 'Orbitron', sans-serif; --font-body: 'Rajdhani', sans-serif; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body { margin: 0; background: var(--bg-deep); color: #e0e0e0; font-family: var(--font-body); overflow: hidden; height: 100vh; }
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+/* BOOT & UI */
+#boot-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 1s; }
+.aztec-loader { width: 100px; height: 100px; border: 3px solid var(--neon-blue); border-radius: 50%; animation: spin 2s infinite linear; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+#galaxy-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
+.scanline { width: 100%; height: 100%; position: fixed; pointer-events: none; background: linear-gradient(to bottom, transparent 50%, rgba(0, 243, 255, 0.05) 51%); background-size: 100% 4px; z-index: 90; }
 
-# --- API 1: CHAT (ORÁCULO AZTLÁN) ---
-@app.route("/api/nasa-rag", methods=["POST"])
-def nasa_chat():
-    data = request.json
-    user_query = data.get('user_query')
-    
-    system_msg = "Eres la IA del sistema AZTLAN OS. Responde de forma técnica, breve y futurista. Eres un experto en astronomía."
-    
-    try:
-        chat_completion = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": system_msg},
-                {"role": "user", "content": user_query}
-            ],
-            model="llama3-8b-8192",
-            temperature=0.7,
-        )
-        return jsonify({"answer": chat_completion.choices[0].message.content})
-    except Exception as e:
-        return jsonify({"answer": "Error de comunicación con el satélite."})
+header { position: absolute; top: 0; left: 0; width: 100%; height: 60px; background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--neon-blue); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; z-index: 100; }
+.brand { font-family: var(--font-title); color: var(--neon-gold); font-size: 18px; }
+.level-badge { border: 1px solid var(--neon-blue); padding: 5px 10px; border-radius: 5px; color: var(--neon-blue); font-weight: bold; font-family: monospace; }
 
-# --- API 2: PREDICCIÓN (Simulada con IA para demo) ---
-@app.route("/api/aztlan-predict", methods=["POST"])
-def predict():
-    # Recibimos los datos del planeta que escribiste en la interfaz
-    data = request.json
-    
-    # Usamos a Llama3 para analizar los datos como si fuera el modelo Random Forest
-    prompt = f"""
-    Actúa como un algoritmo de Machine Learning astronómico. 
-    Analiza estos datos de un posible exoplaneta:
-    - Nombre: {data.get('planet_name')}
-    - Radio Planeta: {data.get('koi_prad')} (Radios Terrestres)
-    - Temperatura: {data.get('koi_steff')} Kelvin
-    - Periodo: {data.get('koi_period')} días.
+/* DOCK */
+.dock { position: absolute; top: 60px; left: 0; bottom: 0; width: 70px; background: rgba(0,0,0,0.6); border-right: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; padding-top: 20px; gap: 20px; z-index: 90; }
+.dock-btn { width: 50px; height: 50px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); color: #888; display: flex; justify-content: center; align-items: center; font-size: 20px; cursor: pointer; transition: 0.3s; }
+.dock-btn:hover { border-color: var(--neon-blue); color: var(--neon-blue); transform: scale(1.1); box-shadow: 0 0 15px var(--neon-blue); }
 
-    Basado en esto, determina si es un CANDIDATO CONFIRMADO o FALSO POSITIVO.
-    Devuelve un JSON con: prediccion (texto corto), probabilidad (ej. 98.5%) y analisis_tecnico (breves razones).
-    """
-    
-    try:
-        chat_completion = client.chat.completions.create(
-            messages=[{"role": "system", "content": "Responde solo en JSON puro."},
-                      {"role": "user", "content": prompt}],
-            model="llama3-8b-8192",
-            temperature=0.5,
-        )
-        # Aquí la IA generará el análisis técnico
-        respuesta_ia = chat_completion.choices[0].message.content
+/* VENTANAS */
+.window { position: absolute; background: var(--panel-bg); border: 1px solid var(--neon-blue); border-radius: 10px; box-shadow: 0 0 40px rgba(0,0,0,0.8); display: none; flex-direction: column; overflow: hidden; min-width: 300px; animation: popIn 0.3s; }
+@keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.win-header { height: 40px; background: rgba(0, 243, 255, 0.1); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; padding: 0 15px; cursor: grab; }
+.win-title { font-family: var(--font-title); color: var(--neon-blue); font-size: 12px; }
+.win-close { background: none; border: none; color: #fff; cursor: pointer; }
+.win-body { flex: 1; overflow-y: auto; padding: 20px; color: #ddd; position: relative; }
+
+/* ELEMENTOS ESPECÍFICOS */
+#meteor-chat-btn { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: radial-gradient(circle, #ffcc00, #ff4400); border-radius: 50%; border: 2px solid #ffaa00; cursor: pointer; z-index: 1000; display: flex; justify-content: center; align-items: center; font-size: 24px; color: #fff; box-shadow: 0 0 20px #ff4400; animation: float 3s infinite alternate; }
+@keyframes float { to { transform: translateY(-10px); } }
+
+/* JUEGO */
+#game-canvas { background: #050505; width: 100%; height: 400px; border: 1px solid #333; cursor: crosshair; }
+.game-ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; z-index: 10; }
+.game-btn { padding: 10px 30px; background: var(--neon-red); color: white; border: none; font-weight: bold; font-family: var(--font-title); cursor: pointer; font-size: 16px; margin-top: 10px; clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%); }
+.game-btn:hover { background: #ff5555; }
+#ai-status { position: absolute; top: 10px; right: 10px; color: var(--neon-green); font-family: monospace; font-weight: bold; display: none; text-shadow: 0 0 5px var(--neon-green); }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .dock { width: 100%; height: 60px; top: auto; bottom: 0; flex-direction: row; justify-content: center; border-right: none; border-top: 1px solid #333; }
+    .window { width: 96% !important; height: 80% !important; top: 70px !important; left: 2% !important; }
+}
+</style>
+</head>
+<body>
+
+<div id="boot-screen"><div class="aztec-loader"></div><div style="margin-top:20px; font-family:var(--font-title); color:var(--neon-blue);">CARGANDO SISTEMA v7.0...</div></div>
+
+<canvas id="galaxy-canvas"></canvas>
+<div class="scanline"></div>
+
+<header>
+    <div class="brand"><i class="fas fa-robot"></i> PROYECTO AZTLÁN</div>
+    <div class="level-badge" id="user-rank">PILOTO (NVL 1)</div>
+</header>
+
+<div class="dock">
+    <div class="dock-btn" onclick="openWindow('win-nasa')"><i class="fas fa-globe-americas"></i></div>
+    <div class="dock-btn" onclick="openWindow('win-analysis')"><i class="fas fa-microscope"></i></div>
+    <div class="dock-btn" onclick="openWindow('win-game')" style="color:var(--neon-red); border-color:var(--neon-red);"><i class="fas fa-gamepad"></i></div>
+    <div class="dock-btn" onclick="openWindow('win-gallery')"><i class="fas fa-images"></i></div>
+</div>
+
+<button id="meteor-chat-btn" onclick="toggleChat()"><i class="fas fa-comment-dots"></i></button>
+
+<div id="win-nasa" class="window" style="width: 900px; height: 600px; top: 80px; left: 100px;">
+    <div class="win-header"><div class="win-title">TELESCOPIO_NASA.EXE</div><button class="win-close" onclick="closeWindow('win-nasa')">✕</button></div>
+    <div class="win-body" style="padding:0; background:#000;"><iframe src="https://eyes.nasa.gov/apps/exo/" style="width:100%; height:100%; border:none;"></iframe></div>
+</div>
+
+<div id="win-analysis" class="window" style="width: 700px; height: 600px; top: 90px; left: 150px;">
+    <div class="win-header"><div class="win-title">ANALIZADOR_IA.PY</div><button class="win-close" onclick="closeWindow('win-analysis')">✕</button></div>
+    <div class="win-body">
+        <h3 style="color:var(--neon-gold); margin-top:0;">Parámetros del Planeta</h3>
+        <input id="planet_name" placeholder="Nombre (ej. Kepler-22b)" style="width:100%; padding:10px; background:#111; border:1px solid #444; color:#fff; margin-bottom:10px;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
+            <input type="number" id="koi_prad" placeholder="Radio (Tierra=1)" class="tech-input" value="1.5" style="padding:8px; background:#111; border:1px solid #333; color:#fff;">
+            <input type="number" id="koi_steff" placeholder="Temp (Kelvin)" class="tech-input" value="290" style="padding:8px; background:#111; border:1px solid #333; color:#fff;">
+        </div>
+        <button onclick="runAnalysis()" style="width:100%; padding:10px; background:var(--neon-blue); border:none; font-weight:bold; cursor:pointer;">EJECUTAR ESCÁNER</button>
+        <div id="ml-result" style="margin-top:20px; padding:10px; background:rgba(255,255,255,0.05); border-left:3px solid var(--neon-blue);">Esperando datos...</div>
+    </div>
+</div>
+
+<div id="win-game" class="window" style="width: 600px; height: 500px; top: 100px; left: 250px; border-color:var(--neon-red);">
+    <div class="win-header" style="background:rgba(255,0,0,0.1);"><div class="win-title" style="color:var(--neon-red);">DEFENSA_ORBITAL_v7</div><button class="win-close" onclick="closeWindow('win-game')">✕</button></div>
+    <div class="win-body" style="padding:0; overflow:hidden;">
+        <div id="game-overlay" class="game-ui-overlay">
+            <h1 style="color:var(--neon-red); text-shadow:0 0 10px red;">ALERTA ROJA</h1>
+            <p>Enemigos detectados en el sector.<br>Usa el mouse para moverte. Click para disparar.</p>
+            <p style="color:var(--neon-gold); font-size:12px;">💡 TIP: Presiona la tecla 'A' para activar el AUTOPILOT IA.</p>
+            <button class="game-btn" onclick="startGame()">DESPLEGAR CAZA</button>
+        </div>
+        <div id="game-over-screen" class="game-ui-overlay" style="display:none;">
+            <h2 style="color:#fff;">MISIÓN FALLIDA</h2>
+            <div id="ai-commentary" style="color:var(--neon-blue); font-style:italic; margin:10px; max-width:80%;">Analizando...</div>
+            <button class="game-btn" onclick="startGame()">REINTENTAR</button>
+        </div>
         
-        # Para asegurar que la interfaz no falle, forzamos una respuesta estructurada si la IA divaga
-        return jsonify({
-            "prediccion": "CANDIDATO CONFIRMADO" if float(data.get('koi_prad')) < 2.5 else "FALSO POSITIVO",
-            "probabilidad": "89.4%",
-            "analisis_tecnico": f"Análisis completado para {data.get('planet_name')}. Radio y temperatura compatibles con zona habitable teórica."
-        })
-    except:
-        return jsonify({
-            "prediccion": "ERROR DE CÁLCULO",
-            "probabilidad": "0%",
-            "analisis_tecnico": "Fallo en los sensores."
-        })
+        <div style="position:absolute; top:10px; left:10px; color:#fff; font-family:monospace; pointer-events:none;">SCORE: <span id="score-display">0</span></div>
+        <div id="ai-status">🤖 IA AUTOPILOT: ON</div>
+        <canvas id="game-canvas"></canvas>
+    </div>
+</div>
 
-# --- API 3: REPORTE CIENTÍFICO ---
-@app.route("/api/aztlan-deep", methods=["POST"])
-def deep_scan():
-    data = request.json
-    prompt = f"Genera un reporte científico detallado y futurista sobre el exoplaneta {data.get('planet_name')} con temperatura {data.get('koi_steff')}K."
-    
-    try:
-        chat_completion = client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}],
-            model="llama3-8b-8192",
-        )
-        return jsonify({"report": chat_completion.choices[0].message.content})
-    except:
-        return jsonify({"report": "Datos insuficientes para reporte detallado."})
+<div id="win-chat" class="window" style="width: 320px; height: 450px; bottom: 100px; right: 20px; top: auto; left: auto; display:none; border-color:var(--neon-gold);">
+    <div class="win-header"><div class="win-title" style="color:var(--neon-gold);">ORÁCULO</div><button class="win-close" onclick="toggleChat()">✕</button></div>
+    <div class="win-body" style="display:flex; flex-direction:column;">
+        <div id="chat-history" style="flex:1; overflow-y:auto; font-size:13px;"></div>
+        <div style="display:flex; margin-top:10px; border-top:1px solid #333; padding-top:5px;">
+            <input id="chat-input" style="flex:1; background:transparent; border:none; color:#fff; outline:none;" placeholder="Orden...">
+            <button onclick="sendChat()" style="background:none; border:none; color:var(--neon-gold);">➤</button>
+        </div>
+    </div>
+</div>
 
-# --- API 4: FOTOS NASA (Buscador) ---
-@app.route("/api/nasa-feed")
-def nasa_feed():
-    query = request.args.get('q', 'galaxy')
-    # Usamos la API pública de NASA Images
-    try:
-        url = f"https://images-api.nasa.gov/search?q={query}&media_type=image"
-        r = requests.get(url).json()
-        items = r['collection']['items'][:10] # Tomamos las primeras 10 fotos
-        images = [{"url": item['links'][0]['href'], "title": item['data'][0]['title']} for item in items if 'links' in item]
-        return jsonify(images)
-    except:
-        return jsonify([])
+<div id="win-gallery" class="window" style="width:500px; height:400px; top:150px; left:300px;">
+    <div class="win-header"><div class="win-title">GALERIA_NASA</div><button class="win-close" onclick="closeWindow('win-gallery')">✕</button></div>
+    <div class="win-body">
+        <button onclick="loadGallery()" style="background:var(--neon-blue); border:none; padding:5px 10px; cursor:pointer; font-weight:bold;">CARGAR FOTOS</button>
+        <div id="gallery-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:5px; margin-top:10px;"></div>
+    </div>
+</div>
 
-if __name__ == "__main__":
-    app.run(debug=True)
+<script>
+// === SISTEMA OPERATIVO ===
+window.onload = function() {
+    setTimeout(() => { document.getElementById('boot-screen').style.opacity=0; setTimeout(()=>document.getElementById('boot-screen').style.display='none',1000); }, 1500);
+    initBackground();
+}
+function openWindow(id) { document.querySelectorAll('.window').forEach(w=>w.style.zIndex=10); const w=document.getElementById(id); w.style.display='flex'; w.style.zIndex=20; }
+function closeWindow(id) { document.getElementById(id).style.display='none'; if(id==='win-game') stopGame(); }
+function toggleChat() { const w=document.getElementById('win-chat'); w.style.display = w.style.display==='none'?'flex':'none'; }
+
+// Drag Windows
+document.querySelectorAll('.win-header').forEach(h => {
+    h.onmousedown = e => {
+        const w = h.parentElement; let offX=e.clientX-w.offsetLeft, offY=e.clientY-w.offsetTop;
+        document.onmousemove = ev => { w.style.left=(ev.clientX-offX)+'px'; w.style.top=(ev.clientY-offY)+'px'; };
+        document.onmouseup = () => document.onmousemove = null;
+    };
+});
+
+// === LÓGICA DEL JUEGO AVANZADO ===
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+let gameLoop, score=0, enemies=[], bullets=[], particles=[], gameActive=false;
+let player = {x:0, y:0, w:30, h:30, color:'#00f3ff'};
+let autoPilot = false;
+
+// Input
+let mouseX = 0;
+canvas.onmousemove = e => {
+    const rect = canvas.getBoundingClientRect();
+    mouseX = e.clientX - rect.left;
+};
+canvas.onmousedown = () => { if(gameActive && !autoPilot) shoot(); };
+document.addEventListener('keydown', (e) => {
+    if(e.key.toLowerCase() === 'a' && gameActive) {
+        autoPilot = !autoPilot;
+        document.getElementById('ai-status').style.display = autoPilot ? 'block' : 'none';
+    }
+});
+
+function startGame() {
+    canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+    player.y = canvas.height - 50;
+    enemies=[]; bullets=[]; particles=[]; score=0;
+    document.getElementById('score-display').innerText = score;
+    document.getElementById('game-overlay').style.display='none';
+    document.getElementById('game-over-screen').style.display='none';
+    gameActive=true; autoPilot=false;
+    document.getElementById('ai-status').style.display = 'none';
+    gameLoop = requestAnimationFrame(update);
+}
+
+function stopGame() { gameActive=false; cancelAnimationFrame(gameLoop); }
+
+function shoot() {
+    bullets.push({x: player.x, y: player.y, speed: 10});
+}
+
+function createExplosion(x, y, color) {
+    for(let i=0; i<8; i++) {
+        particles.push({
+            x: x, y: y,
+            vx: (Math.random()-0.5)*5, vy: (Math.random()-0.5)*5,
+            life: 1.0, color: color
+        });
+    }
+}
+
+function update() {
+    if(!gameActive) return;
+    ctx.fillStyle = '#050505'; ctx.fillRect(0,0,canvas.width, canvas.height); // Clear
+
+    // 1. Lógica del Jugador
+    if(autoPilot) {
+        // IA Simple: Seguir al enemigo más cercano en X
+        if(enemies.length > 0) {
+            let target = enemies[0];
+            player.x += (target.x - player.x) * 0.1; // Suavizado
+            if(Math.abs(target.x - player.x) < 20 && Math.random() > 0.8) shoot(); // Disparo automático
+        } else {
+            player.x += (canvas.width/2 - player.x) * 0.05; // Volver al centro
+        }
+    } else {
+        player.x = mouseX;
+    }
+
+    // Dibujar Nave
+    ctx.shadowBlur = 15; ctx.shadowColor = player.color;
+    ctx.fillStyle = player.color;
+    ctx.beginPath(); ctx.moveTo(player.x, player.y); ctx.lineTo(player.x-15, player.y+20); ctx.lineTo(player.x+15, player.y+20); ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // 2. Balas
+    ctx.fillStyle = '#ffff00';
+    bullets.forEach((b, i) => {
+        b.y -= b.speed;
+        ctx.fillRect(b.x-2, b.y, 4, 10);
+        if(b.y < 0) bullets.splice(i,1);
+    });
+
+    // 3. Enemigos (IA de movimiento)
+    if(Math.random() < 0.03) {
+        enemies.push({
+            x: Math.random() * canvas.width,
+            y: -20,
+            r: 15,
+            speed: 2 + Math.random() * 2,
+            type: Math.random() > 0.8 ? 'hunter' : 'drone',
+            angle: 0
+        });
+    }
+
+    enemies.forEach((e, i) => {
+        e.y += e.speed;
+        
+        // IA Enemiga: Los 'hunter' te persiguen un poco
+        if(e.type === 'hunter') {
+            e.x += (player.x - e.x) * 0.02;
+            ctx.fillStyle = '#ff00ff'; // Morado
+        } else {
+            // Los 'drones' se mueven en ondas
+            e.angle += 0.1;
+            e.x += Math.sin(e.angle) * 2;
+            ctx.fillStyle = '#ff3333'; // Rojo
+        }
+
+        ctx.beginPath(); ctx.arc(e.x, e.y, e.r, 0, Math.PI*2); ctx.fill();
+
+        // Colisión Bala-Enemigo
+        bullets.forEach((b, j) => {
+            let dist = Math.hypot(b.x - e.x, b.y - e.y);
+            if(dist < e.r) {
+                createExplosion(e.x, e.y, e.type==='hunter'?'#ff00ff':'#ff3333');
+                enemies.splice(i,1); bullets.splice(j,1);
+                score += e.type==='hunter' ? 50 : 10;
+                document.getElementById('score-display').innerText = score;
+            }
+        });
+
+        // Colisión Enemigo-Jugador (GAME OVER)
+        if(e.y > canvas.height) { endGame(); }
+        if(Math.hypot(e.x - player.x, e.y - player.y) < e.r + 15) { endGame(); }
+    });
+
+    // 4. Partículas
+    particles.forEach((p, i) => {
+        p.x += p.vx; p.y += p.vy; p.life -= 0.05;
+        ctx.globalAlpha = p.life; ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, 3, 3);
+        if(p.life <= 0) particles.splice(i,1);
+    });
+    ctx.globalAlpha = 1.0;
+
+    gameLoop = requestAnimationFrame(update);
+}
+
+async function endGame() {
+    stopGame();
+    document.getElementById('game-over-screen').style.display = 'flex';
+    // Llamar a la IA para analizar la partida
+    try {
+        const res = await fetch('/api/game-analysis', {
+            method: 'POST', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({score: score})
+        });
+        const data = await res.json();
+        document.getElementById('ai-commentary').innerText = `"${data.comment}"`;
+    } catch(e) { console.log(e); }
+}
+
+// === RESTO DE FUNCIONES API ===
+async function runAnalysis() {
+    const res = document.getElementById('ml-result'); res.innerText = "Analizando...";
+    const data = { koi_prad: document.getElementById('koi_prad').value, koi_steff: document.getElementById('koi_steff').value };
+    const r = await fetch('/api/aztlan-predict', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+    const d = await r.json();
+    res.innerHTML = `<b style="color:${d.prediccion.includes('CONFIRMADO')?'#0f0':'#f00'}">${d.prediccion}</b><br>${d.analisis_tecnico}`;
+}
+async function sendChat() {
+    const inp=document.getElementById('chat-input'); const t=inp.value; if(!t)return;
+    const h=document.getElementById('chat-history'); h.innerHTML+=`<div style="color:#fff; text-align:right; margin:5px;">${t}</div>`; inp.value='';
+    const r=await fetch('/api/nasa-rag',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_query:t})});
+    const d=await r.json(); h.innerHTML+=`<div style="color:var(--neon-green); text-align:left; margin:5px;">${d.answer}</div>`;
+}
+async function loadGallery() {
+    const g=document.getElementById('gallery-grid'); g.innerHTML='Cargando...';
+    const r=await fetch('/api/nasa-feed?q=galaxy'); const d=await r.json();
+    g.innerHTML=''; d.forEach(i=>{g.innerHTML+=`<div onclick="window.open('${i.url}')" style="height:100px; background:url(${i.url}) center/cover; cursor:pointer; border:1px solid #333;"></div>`;});
+}
+function initBackground() {
+    const scene=new THREE.Scene(); const cam=new THREE.PerspectiveCamera(75,window.innerWidth/window.innerHeight,0.1,1000);
+    const ren=new THREE.WebGLRenderer({canvas:document.getElementById('galaxy-canvas'), alpha:true});
+    ren.setSize(window.innerWidth, window.innerHeight);
+    const geom=new THREE.BufferGeometry(); const pos=[];
+    for(let i=0;i<2000;i++) pos.push((Math.random()-0.5)*1000,(Math.random()-0.5)*1000,(Math.random()-0.5)*1000);
+    geom.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+    const mat=new THREE.PointsMaterial({color:0x00f3ff, size:1.5}); scene.add(new THREE.Points(geom,mat));
+    cam.position.z=100;
+    function anim(){ requestAnimationFrame(anim); scene.rotation.y+=0.001; ren.render(scene,cam); } anim();
+}
+</script>
+</body>
+</html>
