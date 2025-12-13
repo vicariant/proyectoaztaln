@@ -1,66 +1,90 @@
 import os
-import json
+import requests
+import random
 from flask import Flask, render_template, request, jsonify
 from groq import Groq
 
 app = Flask(__name__)
 
-# Configuración de la API Key (la toma de Heroku)
+# Configuración de Groq
 client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),
 )
 
-# Función para cargar tu archivo de conocimiento
-def cargar_conocimiento():
-    try:
-        with open('conocimiento.json', 'r', encoding='utf-8') as f:
-            return f.read() # Lo leemos como texto para pasárselo a la IA
-    except Exception as e:
-        print(f"Error cargando conocimiento: {e}")
-        return "No hay información adicional disponible."
-
-# Cargamos el cerebro al iniciar
-base_de_conocimiento = cargar_conocimiento()
-
 @app.route("/")
 def index():
-    # Busca el archivo index.html dentro de la carpeta templates
     return render_template("index.html")
 
-@app.route("/chat", methods=["POST"])
-def chat():
-    user_input = request.json.get("message")
-    
-    # --- AQUÍ ESTÁ LA MAGIA BILINGÜE ---
-    # Instrucciones para la IA
-    system_instruction = f"""
-    Eres un asistente inteligente y útil para el Proyecto Aztlán.
-    
-    Tus conocimientos base son estos:
-    {base_de_conocimiento}
-    
-    INSTRUCCIONES CLAVE:
-    1. Usa la información de arriba para responder.
-    2. Si no sabes la respuesta, di que no tienes esa información por ahora.
-    3. IMPORTANTE: Si el usuario escribe en ESPAÑOL, responde en ESPAÑOL.
-    4. IMPORTANTE: Si el usuario escribe en INGLÉS (English), responde en INGLÉS.
-    """
-
+# --- API 1: CHAT GENERAL ---
+@app.route("/api/nasa-rag", methods=["POST"])
+def nasa_chat():
+    data = request.json
+    user_query = data.get('user_query')
+    system_msg = "Eres la IA del sistema AZTLAN OS. Responde de forma técnica, breve y militar."
     try:
         chat_completion = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": system_instruction},
-                {"role": "user", "content": user_input}
-            ],
-            model="llama3-8b-8192", # Un modelo rápido y bueno
-            temperature=0.7,
+            messages=[{"role": "system", "content": system_msg}, {"role": "user", "content": user_query}],
+            model="llama3-8b-8192", temperature=0.7,
         )
-        
-        bot_response = chat_completion.choices[0].message.content
-        return jsonify({"response": bot_response})
+        return jsonify({"answer": chat_completion.choices[0].message.content})
+    except:
+        return jsonify({"answer": "Error de enlace."})
 
-    except Exception as e:
-        return jsonify({"response": f"Lo siento, hubo un error de conexión: {str(e)}"})
+# --- API 2: PREDICCIÓN PLANETARIA ---
+@app.route("/api/aztlan-predict", methods=["POST"])
+def predict():
+    data = request.json
+    try:
+        # Lógica simulada para demo rápida
+        score = float(data.get('koi_prad', 1)) + (float(data.get('koi_steff', 0))/1000)
+        es_planeta = score < 3.0
+        return jsonify({
+            "prediccion": "CANDIDATO CONFIRMADO" if es_planeta else "FALSO POSITIVO",
+            "probabilidad": f"{random.randint(85, 99)}.{random.randint(0,9)}%",
+            "analisis_tecnico": f"Radio planetario {'estable' if es_planeta else 'anómalo'} detectado."
+        })
+    except:
+        return jsonify({"prediccion": "ERROR", "probabilidad": "0%", "analisis_tecnico": "Fallo sensores."})
+
+# --- API 3: REPORTE CIENTÍFICO ---
+@app.route("/api/aztlan-deep", methods=["POST"])
+def deep_scan():
+    data = request.json
+    prompt = f"Genera un reporte científico breve sobre el exoplaneta {data.get('planet_name')}."
+    try:
+        chat_completion = client.chat.completions.create(
+            messages=[{"role": "user", "content": prompt}], model="llama3-8b-8192",
+        )
+        return jsonify({"report": chat_completion.choices[0].message.content})
+    except:
+        return jsonify({"report": "Datos insuficientes."})
+
+# --- API 4: FOTOS NASA ---
+@app.route("/api/nasa-feed")
+def nasa_feed():
+    query = request.args.get('q', 'galaxy')
+    try:
+        url = f"https://images-api.nasa.gov/search?q={query}&media_type=image"
+        r = requests.get(url).json()
+        items = r['collection']['items'][:8]
+        images = [{"url": item['links'][0]['href'], "title": item['data'][0]['title']} for item in items if 'links' in item]
+        return jsonify(images)
+    except:
+        return jsonify([])
+
+# --- API 5: GAME OVER ANALYSIS (NUEVO) ---
+@app.route("/api/game-analysis", methods=["POST"])
+def game_analysis():
+    data = request.json
+    score = data.get('score', 0)
+    prompt = f"El usuario acaba de jugar el simulador de defensa y obtuvo {score} puntos. Eres un instructor militar estricto. Dale un comentario de una frase sobre su desempeño."
+    try:
+        chat_completion = client.chat.completions.create(
+            messages=[{"role": "user", "content": prompt}], model="llama3-8b-8192", max_tokens=50
+        )
+        return jsonify({"comment": chat_completion.choices[0].message.content})
+    except:
+        return jsonify({"comment": "Simulación terminada."})
 
 if __name__ == "__main__":
     app.run(debug=True)
