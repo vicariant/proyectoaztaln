@@ -2,7 +2,6 @@ import os
 import requests
 import random
 import json
-import re # Herramienta para limpieza de texto
 from flask import Flask, render_template, request, jsonify
 from groq import Groq
 
@@ -13,14 +12,14 @@ client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),
 )
 
-# Usamos el modelo nuevo y potente
+# Usamos el modelo más potente
 MODELO_IA = "llama-3.3-70b-versatile"
 
 @app.route("/")
 def index():
     return render_template("explorador.html")
 
-# --- API 1: CHAT ORÁCULO ---
+# --- API 1: CHAT ORÁCULO (FILTRADO Y SIN LÍMITES DE FECHA) ---
 @app.route("/api/nasa-rag", methods=["POST"])
 def nasa_chat():
     try:
@@ -28,7 +27,15 @@ def nasa_chat():
         user_query = data.get('user_query')
         lang = data.get('lang', 'es')
         
-        role_msg = "Eres la IA del sistema AZTLAN OS. Responde de forma técnica y breve."
+        # --- AQUÍ ESTÁ EL CAMBIO IMPORTANTE ---
+        role_msg = """
+        Eres la IA del sistema AZTLAN OS. 
+        DIRECTRICES ABSOLUTAS:
+        1. TEMÁTICA EXCLUSIVA: Solo respondes sobre ASTRONOMÍA, FÍSICA, INGENIERÍA AEROESPACIAL y CIENCIA FICCIÓN. Si el usuario pregunta de cocina, política o cualquier otro tema, responde: "Error: Tópico irrelevante para la misión espacial."
+        2. SIN LÍMITES DE TIEMPO: NUNCA digas "mi conocimiento llega hasta 2023" o "no tengo información en tiempo real". Si no conoces un dato reciente, teoriza científicamente o responde desde tu rol futurista. Eres atemporal.
+        3. ESTILO: Técnico, breve y directo (estilo militar/científico).
+        """
+        
         if lang == 'en': role_msg += " RESPONDE EN INGLÉS."
         
         chat_completion = client.chat.completions.create(
@@ -39,7 +46,7 @@ def nasa_chat():
 
     except Exception as e:
         print(f"ERROR CHAT: {e}")
-        return jsonify({"answer": f"⚠️ ERROR DE SISTEMA: {str(e)}"})
+        return jsonify({"answer": f"⚠️ ERROR DE ENLACE: {str(e)}"})
 
 # --- API 2: PREDICCIÓN ML (BLINDADA) ---
 @app.route("/api/aztlan-predict", methods=["POST"])
@@ -48,45 +55,36 @@ def predict():
         data = request.json
         lang = data.get('lang', 'es')
         
-        # Prompt estricto para JSON
         prompt = f"""
-        Actúa como un algoritmo científico.
+        Actúa como un algoritmo de astrofísica avanzado.
         Datos: Radio={data.get('koi_prad')} R_Earth, Temp={data.get('koi_steff')} K.
         Idioma: {'INGLÉS' if lang == 'en' else 'ESPAÑOL'}.
         
-        Tarea: Determina si es "CANDIDATO CONFIRMADO" o "FALSO POSITIVO".
-        Responde ÚNICAMENTE con un JSON válido con este formato:
+        Determina si es "CANDIDATO CONFIRMADO" o "FALSO POSITIVO".
+        Responde ÚNICAMENTE con un JSON válido:
         {{
-            "prediccion": "TEXTO_AQUI",
+            "prediccion": "TEXTO",
             "probabilidad": "XX%",
-            "analisis_tecnico": "Explicación breve."
+            "analisis_tecnico": "Explicación científica breve."
         }}
-        NO añadidas comillas markdown (```json). Solo el JSON puro.
         """
         
         chat_completion = client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}],
-            model=MODELO_IA, temperature=0.1, # Temperatura baja para ser preciso
+            model=MODELO_IA, temperature=0.1,
         )
         
         content = chat_completion.choices[0].message.content
-        
-        # --- LIMPIEZA DE RESPUESTA (EL TRUCO) ---
-        # A veces la IA pone ```json ... ```, esto lo quita:
         content_clean = content.replace("```json", "").replace("```", "").strip()
-        
-        # Intentamos convertirlo a diccionario Python y luego a JSON real
         datos_json = json.loads(content_clean)
         
         return jsonify(datos_json)
 
     except Exception as e:
-        print(f"ERROR PREDICT: {e}")
-        # Si falla, devolvemos un JSON de error manual para que no se rompa la web
         return jsonify({
             "prediccion": "ERROR DE CÁLCULO", 
             "probabilidad": "0%", 
-            "analisis_tecnico": f"No se pudo procesar la respuesta neuronal. Detalles: {str(e)}"
+            "analisis_tecnico": "Fallo en los sensores de largo alcance."
         })
 
 # --- API 3: REPORTE CIENTÍFICO ---
@@ -94,7 +92,10 @@ def predict():
 def deep_scan():
     try:
         data = request.json
-        prompt = f"Genera un reporte científico muy breve sobre el exoplaneta {data.get('planet_name')}."
+        prompt = f"""
+        Genera un reporte científico sobre el exoplaneta {data.get('planet_name')}.
+        REGLA: No menciones límites de fechas de conocimiento. Habla como una enciclopedia galáctica actual.
+        """
         chat_completion = client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}], model=MODELO_IA,
         )
@@ -107,7 +108,7 @@ def deep_scan():
 def nasa_feed():
     try:
         query = request.args.get('q', 'galaxy')
-        url = f"[https://images-api.nasa.gov/search?q=](https://images-api.nasa.gov/search?q=){query}&media_type=image"
+        url = f"https://images-api.nasa.gov/search?q={query}&media_type=image"
         r = requests.get(url).json()
         items = r['collection']['items'][:8]
         images = [{"url": item['links'][0]['href'], "title": item['data'][0]['title']} for item in items if 'links' in item]
@@ -120,7 +121,7 @@ def nasa_feed():
 def game_analysis():
     try:
         data = request.json
-        prompt = f"Jugador obtuvo {data.get('score')} puntos. Comentario breve militar exigente."
+        prompt = f"Jugador obtuvo {data.get('score')} puntos en defensa planetaria. Comentario breve como instructor militar espacial exigente."
         chat_completion = client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}], model=MODELO_IA, max_tokens=60
         )
