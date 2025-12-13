@@ -3,270 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FTC: DECODE 2025-2026</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+    <title>FTC COMMAND: DECODE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@400;600&family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            /* PALETA OFICIAL DECODE / FIRST AGE */
-            --decode-gold: #e5ae32;   /* Oro */
-            --decode-orange: #ea572e; /* Arcilla */
-            --decode-jade: #92dbac;   /* Jade/Verde Antiguo */
-            --decode-teal: #598290;   /* Pizarra/Azul Oscuro */
-            --decode-dark: #121212;   /* Fondo Oscuro */
-            
-            --font-title: 'Cinzel', serif;
-            --font-body: 'Rajdhani', sans-serif;
-            --bg-pattern: repeating-linear-gradient(45deg, #151515 25%, transparent 25%, transparent 75%, #151515 75%, #151515), repeating-linear-gradient(45deg, #151515 25%, #0a0a0a 25%, #0a0a0a 75%, #151515 75%, #151515);
-        }
-
-        body {
-            margin: 0; background-color: #050505; 
-            background-image: var(--bg-pattern); background-size: 20px 20px;
-            color: #eee; font-family: var(--font-body); overflow-x: hidden;
-        }
-        
-        /* HEADER DECODE */
-        header {
-            background: linear-gradient(to right, #000, #1a1a1a);
-            border-bottom: 4px solid var(--decode-gold);
-            padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 5px 20px rgba(229, 174, 50, 0.2);
-        }
-        h1 { font-family: var(--font-title); margin: 0; color: var(--decode-gold); font-size: 2em; letter-spacing: 2px; }
-        h1 span { color: var(--decode-jade); font-size: 0.6em; vertical-align: middle; }
-        
-        .back-btn {
-            background: transparent; border: 1px solid var(--decode-jade); color: var(--decode-jade);
-            padding: 8px 20px; text-decoration: none; font-family: var(--font-title); font-weight: bold;
-            transition: 0.3s; clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0% 100%, 0% 30%);
-        }
-        .back-btn:hover { background: var(--decode-jade); color: #000; }
-
-        /* SEASON BANNER */
-        .season-hero {
-            text-align: center; padding: 40px 20px;
-            background: radial-gradient(circle at center, rgba(89, 130, 144, 0.3) 0%, rgba(0,0,0,0) 70%);
-            border-bottom: 1px solid var(--decode-teal);
-        }
-        .season-logo { 
-            font-family: var(--font-title); font-size: 3.5em; 
-            background: linear-gradient(to bottom, var(--decode-gold), var(--decode-orange));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(229, 174, 50, 0.3);
-        }
-        .season-sub { color: var(--decode-jade); letter-spacing: 4px; font-size: 1.1em; margin-top: 5px; }
-
-        /* GRID */
-        .container { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding: 20px; max-width: 1400px; margin: 0 auto; }
-        
-        /* PANELES ESTILO TECNO-ARQUEOLOGÍA */
-        .panel {
-            background: rgba(20, 20, 20, 0.95); border: 1px solid var(--decode-teal);
-            padding: 20px; position: relative;
-        }
-        .panel::before { /* Adorno de esquina */
-            content: ''; position: absolute; top: 0; left: 0; width: 0; height: 0;
-            border-top: 30px solid var(--decode-gold); border-right: 30px solid transparent;
-        }
-        .panel h2 { 
-            color: var(--decode-jade); margin-top: 0; padding-bottom: 10px; border-bottom: 1px dashed var(--decode-teal);
-            font-family: var(--font-title); display: flex; align-items: center; gap: 10px;
-        }
-
-        /* TABLA DE EVENTOS */
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th { text-align: left; color: var(--decode-gold); padding: 8px; font-family: var(--font-title); border-bottom: 1px solid var(--decode-gold); }
-        td { padding: 10px 8px; border-bottom: 1px solid #333; }
-        .score-red { color: var(--decode-orange); font-weight: bold; }
-        .score-blue { color: var(--decode-teal); font-weight: bold; }
-
-        /* JUEGO EXCAVACIÓN (BUSCAMINAS) */
-        .excavation-site {
-            background: #0a0a0a; border: 2px solid var(--decode-orange); padding: 15px;
-            display: flex; flex-direction: column; align-items: center;
-        }
-        .grid {
-            display: grid; grid-template-columns: repeat(8, 30px); gap: 4px; margin: 15px 0;
-        }
-        .cell {
-            width: 30px; height: 30px; background: #333; border: 1px solid #555;
-            display: flex; justify-content: center; align-items: center; cursor: pointer;
-            font-weight: bold; font-family: monospace; user-select: none;
-            transition: 0.2s;
-        }
-        .cell:hover { background: #444; }
-        .cell.revealed { background: #111; border-color: #222; cursor: default; }
-        .cell.trap { background: var(--decode-orange); color: #000; }
-        .cell.artifact { color: var(--decode-jade); }
+        :root { --neon-blue: #00f3ff; --decode-gold: #ffd700; --decode-orange: #ff6b35; --bg-dark: #050810; --panel-bg: rgba(10, 15, 25, 0.95); --font-tech: 'Orbitron', sans-serif; --font-body: 'Rajdhani', sans-serif; --font-archaeo: 'Cinzel Decorative', cursive; }
+        body { margin: 0; background-color: var(--bg-dark); color: #eee; font-family: var(--font-body); overflow: hidden; height: 100vh; }
+        .sand-bg { position: fixed; top: 0; left: 0; width: 200%; height: 200%; z-index: -2; background-image: url('https://www.transparenttextures.com/patterns/sand-dust.png'); background-color: rgba(30, 20, 5, 0.8); animation: driftingSand 60s linear infinite; opacity: 0.4; }
+        .neon-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at center, transparent 0%, var(--bg-dark) 90%); pointer-events: none; }
+        @keyframes driftingSand { 0% { transform: translate(0, 0); } 100% { transform: translate(-50%, -50%); } }
+        header { position: relative; z-index: 10; background: rgba(0,0,0,0.8); border-bottom: 2px solid var(--decode-gold); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 20px rgba(255, 215, 0, 0.2); backdrop-filter: blur(10px); }
+        .brand-title { font-family: var(--font-tech); color: var(--neon-blue); font-size: 1.5em; letter-spacing: 2px; }
+        .brand-subtitle { font-family: var(--font-archaeo); color: var(--decode-gold); font-size: 0.9em; margin-top: 5px; }
+        .back-btn { background: transparent; border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 10px 25px; text-decoration: none; font-family: var(--font-tech); font-size: 0.9em; transition: 0.3s; clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0% 100%, 0% 30%); }
+        .back-btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 15px var(--neon-blue); }
+        .main-container { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding: 20px; height: calc(100vh - 70px); position: relative; z-index: 5; }
+        .panel { background: var(--panel-bg); border: 1px solid var(--decode-gold); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 0 30px rgba(0,0,0,0.5); position: relative; }
+        .panel-header { background: rgba(255, 215, 0, 0.05); padding: 10px 15px; border-bottom: 1px solid rgba(255, 215, 0, 0.2); font-family: var(--font-tech); color: var(--decode-gold); font-size: 1.1em; display: flex; align-items: center; gap: 10px; }
+        .panel-body { flex: 1; padding: 15px; overflow-y: auto; }
+        .official-frame-container { flex: 1; width: 100%; height: 100%; overflow: hidden; border-radius: 0 0 10px 10px; background: #fff; }
+        #first-iframe { width: 100%; height: 100%; border: none; margin-top: -100px; height: calc(100% + 100px); }
+        .chat-box { height: 200px; overflow-y: auto; background: rgba(0,0,0,0.6); border: 1px solid #333; padding: 10px; margin-bottom: 10px; }
+        .chat-input { width: 100%; background: rgba(0,0,0,0.8); border: 1px solid var(--decode-gold); color: #fff; padding: 10px; font-family: var(--font-body); }
+        .ai-msg { color: var(--decode-gold); margin: 5px 0; border-left: 2px solid var(--decode-gold); padding-left: 8px; }
+        .user-msg { color: var(--neon-blue); text-align: right; margin: 5px 0; }
+        .mines-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; background: #111; padding: 10px; border: 2px solid var(--decode-orange); width: fit-content; margin: 0 auto; }
+        .cell { width: 30px; height: 30px; background: #333; border: 1px solid #444; display: flex; justify-content: center; align-items: center; cursor: pointer; font-weight: bold; font-family: monospace; user-select: none; }
+        .cell:hover { background: #444; box-shadow: 0 0 5px var(--decode-orange); }
+        .cell.revealed { background: #222; border-color: #111; cursor: default; color: var(--neon-blue); }
+        .cell.trap { background: var(--decode-orange); color: #000; animation: pulseTrap 0.5s infinite alternate; }
         .cell.flag { color: var(--decode-gold); }
-
-        /* CHAT */
-        .chat-box { height: 250px; overflow-y: auto; background: #000; border: 1px solid #333; padding: 10px; margin-bottom: 10px; }
-        .chat-input { width: 100%; background: #111; border: 1px solid var(--decode-teal); color: #fff; padding: 10px; font-family: var(--font-body); }
-        .ai-msg { color: var(--decode-jade); margin: 5px 0; border-left: 2px solid var(--decode-jade); padding-left: 8px; }
-        .user-msg { color: #888; text-align: right; font-style: italic; margin: 5px 0; }
-
-        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
+        @keyframes pulseTrap { from { box-shadow: 0 0 5px var(--decode-orange); } to { box-shadow: 0 0 20px var(--decode-orange); } }
+        @media (max-width: 900px) { .main-container { grid-template-columns: 1fr; height: auto; overflow-y: auto; } .panel { height: 500px; margin-bottom: 20px; } }
     </style>
 </head>
 <body>
-
+    <div class="sand-bg"></div><div class="neon-overlay"></div>
     <header>
-        <h1>DECODE <span>// SYSTEM</span></h1>
-        <a href="/" class="back-btn"><i class="fas fa-satellite"></i> VOLVER AL OS</a>
+        <div class="brand-container"><div class="brand-title"><i class="fas fa-satellite-dish"></i> AZTLAN // FTC UPLINK</div><div class="brand-subtitle">TEMPORADA 2025-2026: DECODE</div></div>
+        <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> REGRESAR AL OS</a>
     </header>
-
-    <div class="season-hero">
-        <div class="season-logo">FIRST AGE: DECODE</div>
-        <div class="season-sub">TEMPORADA 2025-2026 | ARTEFACTOS & MISTERIOS</div>
-    </div>
-
-    <div class="container">
-        <div>
-            <div class="panel">
-                <h2><i class="fas fa-globe-americas"></i> RASTREO DE EVENTOS (MÉXICO)</h2>
-                <div id="loading-msg" style="color:var(--decode-teal);">Decodificando señal...</div>
-                <div id="events-container"></div>
-            </div>
-
-            <div class="panel" style="margin-top: 20px;">
-                <h2><i class="fas fa-trophy"></i> RANKING DECODE</h2>
-                <table id="rank-table">
-                    <thead><tr><th>#</th><th>EQUIPO</th><th>PUNTOS RP</th></tr></thead>
-                    <tbody id="rank-body"></tbody>
-                </table>
-            </div>
+    <div class="main-container">
+        <div class="panel" style="border-color: var(--neon-blue);">
+            <div class="panel-header" style="color:var(--neon-blue);"><i class="fas fa-globe"></i> BASE DE DATOS OFICIAL FIRST (EN VIVO)</div>
+            <div class="official-frame-container"><iframe id="first-iframe" src="https://ftc-events.firstinspires.org/2025/events" sandbox="allow-scripts allow-same-origin allow-popups"></iframe></div>
         </div>
-
-        <div>
-            <div class="panel">
-                <h2><i class="fas fa-robot"></i> MANUAL DECODE BOT</h2>
-                <div class="chat-box" id="ftc-chat">
-                    <div class="ai-msg">Soy el guardián del reglamento 2025. ¿Qué duda tienes sobre los Artefactos?</div>
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div class="panel" style="height: 40%;">
+                <div class="panel-header"><i class="fas fa-book"></i> ORÁCULO DEL REGLAMENTO</div>
+                <div class="panel-body">
+                    <div class="chat-box" id="ftc-chat"><div class="ai-msg">Soy la IA experta en FTC DECODE. Pregúntame sobre el reglamento.</div></div>
+                    <input class="chat-input" id="ask-ftc" placeholder="Ej: ¿Puntos por subir?" onkeypress="if(event.key==='Enter') sendFtcChat()">
                 </div>
-                <input class="chat-input" id="ask-ftc" placeholder="Escribe tu pregunta..." onkeypress="if(event.key==='Enter') sendFtcChat()">
             </div>
-
-            <div class="panel" style="margin-top: 20px; border-color: var(--decode-orange);">
-                <h2 style="color:var(--decode-orange); border-color:var(--decode-orange);"><i class="fas fa-exclamation-triangle"></i> EXCAVACIÓN DE RIESGO</h2>
-                <div class="excavation-site">
-                    <div style="font-size:0.9em; text-align:center;">
-                        ¡Encuentra los Artefactos sin activar las Trampas!<br>
-                        <span style="color:var(--decode-gold);">Clic Der = Marcar</span>
-                    </div>
-                    <div id="grid" class="grid"></div>
-                    <button onclick="initGame()" class="back-btn" style="border-color:var(--decode-orange); color:var(--decode-orange);">REINICIAR SITIO</button>
-                    <div id="game-status" style="margin-top:10px; font-weight:bold; color:var(--decode-jade);">ESTADO: SEGURO</div>
+            <div class="panel" style="flex: 1; border-color: var(--decode-orange);">
+                <div class="panel-header" style="color:var(--decode-orange);"><i class="fas fa-exclamation-triangle"></i> PROTOCOLO DE EXCAVACIÓN</div>
+                <div class="panel-body" style="text-align:center;">
+                    <div style="font-size:0.8em; color:#aaa; margin-bottom:10px;">Clic: Excavar | Clic Der: Marcar Trampa</div>
+                    <div id="grid" class="mines-grid"></div>
+                    <div id="game-status" style="margin-top:10px; font-weight:bold; color:var(--decode-gold);">ESTADO: SEGURO</div>
+                    <button onclick="initGame()" style="margin-top:10px; background:transparent; border:1px solid var(--decode-orange); color:var(--decode-orange); padding:5px 15px; cursor:pointer; font-family:var(--font-tech);">REINICIAR</button>
                 </div>
             </div>
         </div>
     </div>
-
     <script>
-        // --- 1. CARGA DE DATOS FTC ---
-        window.onload = async () => {
-            initGame(); // Inicia el Buscaminas
-            try {
-                const res = await fetch('/api/ftc-real');
-                const json = await res.json();
-                document.getElementById('loading-msg').style.display = 'none';
-                
-                const event = json.data[0]; 
-                let html = `<h3 style="color:var(--decode-gold);">${event.event_name}</h3>
-                            <table><thead><tr><th>MATCH</th><th>RED</th><th>BLUE</th></tr></thead><tbody>`;
-                event.matches.forEach(m => {
-                    html += `<tr><td>${m.match}</td><td class="score-red">${m.red} (${m.red_score})</td><td class="score-blue">${m.blue} (${m.blue_score})</td></tr>`;
-                });
-                html += `</tbody></table>`;
-                document.getElementById('events-container').innerHTML = html;
-
-                let ranks = '';
-                event.rankings.forEach(r => {
-                    ranks += `<tr><td>${r.rank}</td><td style="color:${r.team.includes('2825')? 'var(--decode-gold)':'#fff'}">${r.team}</td><td>${r.rp}</td></tr>`;
-                });
-                document.getElementById('rank-body').innerHTML = ranks;
-            } catch(e) { document.getElementById('loading-msg').innerText = "Sin conexión al servidor TOA."; }
-        };
-
-        // --- 2. CHATBOT DECODE ---
+        // --- 1. CHATBOT ESPECÍFICO FTC ---
         async function sendFtcChat() {
-            const inp = document.getElementById('ask-ftc');
-            const txt = inp.value; if(!txt)return;
-            const box = document.getElementById('ftc-chat');
-            box.innerHTML += `<div class="user-msg">${txt}</div>`;
-            inp.value = 'Analizando manual...'; inp.disabled=true;
+            const inp = document.getElementById('ask-ftc'); const txt = inp.value; if(!txt)return;
+            const box = document.getElementById('ftc-chat'); box.innerHTML += `<div class="user-msg">${txt}</div>`;
+            inp.value = 'Procesando...'; inp.disabled=true;
             try {
-                const r = await fetch('/api/nasa-rag', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({user_query:txt, lang:'es'})});
-                const d = await r.json();
-                box.innerHTML += `<div class="ai-msg">${d.answer}</div>`;
-            } catch(e) { box.innerHTML += `<div style="color:red;">Error de red.</div>`; }
+                // AQUÍ ESTÁ EL CAMBIO: enviamos mode: 'ftc'
+                const r = await fetch('/api/nasa-rag', {
+                    method:'POST', 
+                    headers:{'Content-Type':'application/json'}, 
+                    body:JSON.stringify({
+                        user_query: txt, 
+                        lang: 'es', 
+                        mode: 'ftc' // <--- ESTO ACTIVA LA PERSONALIDAD DE ROBÓTICA
+                    })
+                });
+                const d = await r.json(); box.innerHTML += `<div class="ai-msg">${d.answer}</div>`;
+            } catch(e) { box.innerHTML += `<div style="color:red;">Error de enlace.</div>`; }
             inp.value=''; inp.disabled=false; box.scrollTop=box.scrollHeight;
         }
 
-        // --- 3. JUEGO EXCAVACIÓN (MINESWEEPER) ---
-        const size=8, mines=8;
-        let board=[], revealed=false;
-
+        // --- 2. JUEGO ---
+        const size=8, mines=8; let board=[], revealed=false, flags=0; window.onload = initGame;
         function initGame() {
             const g = document.getElementById('grid'); g.innerHTML='';
             board = Array(size).fill().map(()=>Array(size).fill({mine:false, open:false, flag:false}));
-            let m=0;
-            while(m<mines){
-                let r=Math.floor(Math.random()*size), c=Math.floor(Math.random()*size);
-                if(!board[r][c].mine){ board[r][c]={...board[r][c], mine:true}; m++; }
-            }
+            let m=0; while(m<mines){ let r=Math.floor(Math.random()*size), c=Math.floor(Math.random()*size); if(!board[r][c].mine){ board[r][c]={...board[r][c], mine:true}; m++; }}
             for(let r=0;r<size;r++) for(let c=0;c<size;c++) {
-                let div = document.createElement('div');
-                div.className = 'cell';
-                div.onclick = ()=>open(r,c);
-                div.oncontextmenu = (e)=>{e.preventDefault(); toggleFlag(r,c,div);};
-                div.id = `c-${r}-${c}`;
+                let div = document.createElement('div'); div.className = 'cell'; div.id = `c-${r}-${c}`;
+                div.onclick = ()=>open(r,c); div.oncontextmenu = (e)=>{e.preventDefault(); toggleFlag(r,c,div);};
                 g.appendChild(div);
             }
-            document.getElementById('game-status').innerText = "ESTADO: ESCANEANDO...";
-            document.getElementById('game-status').style.color = "var(--decode-jade)";
-            revealed=false;
+            updateStatus("SEGURO"); revealed=false; flags=0;
         }
-
         function open(r,c){
             if(revealed || board[r][c].open || board[r][c].flag) return;
-            let cell = document.getElementById(`c-${r}-${c}`);
-            if(board[r][c].mine){
-                cell.className='cell trap'; cell.innerHTML='<i class="fas fa-skull"></i>';
-                revealAll();
-                document.getElementById('game-status').innerText = "¡TRAMPA ACTIVADA! FIN.";
-                document.getElementById('game-status').style.color = "var(--decode-orange)";
-                return;
-            }
-            let count=0;
-            for(let i=-1;i<=1;i++) for(let j=-1;j<=1;j++) {
-                if(r+i>=0 && r+i<size && c+j>=0 && c+j<size && board[r+i][c+j].mine) count++;
-            }
-            board[r][c].open=true;
-            cell.className='cell revealed';
-            if(count>0) { cell.innerText=count; cell.style.color = ['#000','var(--decode-jade)','var(--decode-gold)','var(--decode-orange)'][count]||'red'; }
-            else { 
-                for(let i=-1;i<=1;i++) for(let j=-1;j<=1;j++) if(r+i>=0 && r+i<size && c+j>=0 && c+j<size) open(r+i,c+j);
-            }
+            if(board[r][c].mine){ revealAll(); updateStatus("¡TRAMPA ACTIVADA!", true); return; }
+            let count=0; for(let i=-1;i<=1;i++) for(let j=-1;j<=1;j++) if(r+i>=0&&r+i<size&&c+j>=0&&c+j<size&&board[r+i][c+j].mine) count++;
+            board[r][c].open=true; let cell=document.getElementById(`c-${r}-${c}`); cell.className='cell revealed';
+            if(count>0) { cell.innerText=count; cell.style.color=['','var(--neon-blue)','var(--decode-gold)','var(--decode-orange)'][count]||'red'; }
+            else { for(let i=-1;i<=1;i++) for(let j=-1;j<=1;j++) if(r+i>=0&&r+i<size&&c+j>=0&&c+j<size) open(r+i,c+j); }
         }
-
-        function toggleFlag(r,c,div){
-            if(revealed || board[r][c].open) return;
-            board[r][c].flag = !board[r][c].flag;
-            div.innerHTML = board[r][c].flag ? '<i class="fas fa-flag"></i>' : '';
-            div.className = board[r][c].flag ? 'cell flag' : 'cell';
-        }
-
-        function revealAll(){
-            revealed=true;
-            for(let r=0;r<size;r++) for(let c=0;c<size;c++) {
-                if(board[r][c].mine) {
-                    let d=document.getElementById(`c-${r}-${c}`);
-                    d.className='cell trap'; d.innerHTML='<i class="fas fa-skull"></i>';
-                }
-            }
-        }
+        function toggleFlag(r,c,div){ if(revealed||board[r][c].open)return; board[r][c].flag=!board[r][c].flag; div.innerHTML=board[r][c].flag?'<i class="fas fa-flag"></i>':''; div.className=board[r][c].flag?'cell flag':'cell'; }
+        function revealAll(){ revealed=true; for(let r=0;r<size;r++) for(let c=0;c<size;c++) if(board[r][c].mine) { let d=document.getElementById(`c-${r}-${c}`); d.className='cell trap'; d.innerHTML='<i class="fas fa-skull"></i>'; }}
+        function updateStatus(msg, danger=false) { const s=document.getElementById('game-status'); s.innerText="ESTADO: "+msg; s.style.color=danger?'var(--decode-orange)':'var(--decode-gold)'; }
     </script>
 </body>
 </html>
