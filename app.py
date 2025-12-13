@@ -12,7 +12,7 @@ client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),
 )
 
-# Llave opcional para The Orange Alliance (FTC Data)
+# Variables
 TOA_KEY = os.environ.get("TOA_API_KEY", "") 
 MODELO_IA = "llama-3.3-70b-versatile"
 
@@ -24,34 +24,34 @@ def index():
 def ftc_dashboard():
     return render_template("ftc.html")
 
-# --- API MAESTRA: CHAT CON PERSONALIDAD VARIABLE ---
+# --- API MAESTRA ---
 @app.route("/api/nasa-rag", methods=["POST"])
 def nasa_chat():
     try:
         data = request.json
         user_query = data.get('user_query')
         lang = data.get('lang', 'es')
-        mode = data.get('mode', 'nasa') # <--- AQUÍ ESTÁ EL TRUCO (Por defecto es NASA)
+        mode = data.get('mode', 'nasa') 
         
-        # 1. PERSONALIDAD FTC (ROBÓTICA)
+        # 1. PERSONALIDAD FTC (NEUTRAL Y EXPERTA)
         if mode == 'ftc':
             role_msg = """
-            Eres la IA OFICIAL de la temporada FIRST Tech Challenge 2025-2026: DECODE.
-            TUS REGLAS:
-            1. Eres un experto en el Game Manual Part 1 y Part 2 de DECODE.
-            2. Hablas con términos técnicos de robótica (Chasis, Odometría, Servos, Control Hub, Java, Blocks).
-            3. Tu tono es útil, estratégico y motivador para equipos como Waachma y Techkalli.
-            4. Si te preguntan de astronomía, responde: "Módulo astronómico desactivado. Centrándose en el robot."
+            Eres la IA OFICIAL del sistema de competencia FIRST Tech Challenge (Temporada DECODE 2025-2026).
+            
+            TUS OBJETIVOS:
+            1. Actuar como un Juez Experto (Referee) y Asesor Técnico.
+            2. Tu misión es ayudar a CUALQUIER equipo de la comunidad FIRST con dudas sobre el reglamento, mecánica y programación.
+            3. NO tienes favoritos. Trata a todos los equipos con "Gracious Professionalism".
+            4. Conoces a fondo el Game Manual Part 1 y 2.
+            5. Si te preguntan sobre estrategias, da consejos generales de alto nivel (meta game).
             """
         
         # 2. PERSONALIDAD AZTLÁN (ESPACIO)
         else:
             role_msg = """
             Eres la IA del sistema AZTLAN OS. 
-            TUS REGLAS:
-            1. Solo respondes sobre ASTRONOMÍA, FÍSICA y CIENCIA FICCIÓN.
-            2. Actúa como una interfaz de nave espacial futurista.
-            3. Si te preguntan de robótica o cocina, di: "Error: Tópico irrelevante para la misión interestelar."
+            Responde solo sobre ASTRONOMÍA, FÍSICA y CIENCIA FICCIÓN.
+            Actúa como una interfaz de nave espacial.
             """
         
         if lang == 'en': role_msg += " RESPONDE EN INGLÉS."
@@ -65,30 +65,12 @@ def nasa_chat():
     except Exception as e:
         return jsonify({"answer": f"⚠️ ERROR DE SISTEMA: {str(e)}"})
 
-# --- API DATOS FTC (TOA / MOCK) ---
+# --- API DATOS (Mantiene funcionalidad por si acaso) ---
 @app.route("/api/ftc-real", methods=["GET"])
 def ftc_data():
-    if TOA_KEY:
-        try:
-            headers = {"Content-Type": "application/json", "X-TOA-Key": TOA_KEY}
-            events = requests.get("https://theorangealliance.org/api/event?region_key=MX&season_key=2425", headers=headers).json()
-            return jsonify({"source": "TOA_LIVE", "data": events[:5]})
-        except: pass
+    return jsonify({"source": "OFFICIAL_LINK", "data": []})
 
-    # Datos simulados de respaldo si no hay API Key real
-    mock_data = [{
-        "event_name": "Regional CDMX DECODE",
-        "date": "2025-12-13",
-        "location": "PrepaTec CDMX",
-        "matches": [
-            {"match": "Q-1", "red": "28254 Waachma", "red_score": 85, "blue": "28255 Techkalli", "blue_score": 92},
-            {"match": "Q-2", "red": "11111 Voltec", "red_score": 110, "blue": "99999 Cyber", "blue_score": 45}
-        ],
-        "rankings": [{"rank": 1, "team": "28254 Waachma", "rp": 2.5}, {"rank": 2, "team": "28255 Techkalli", "rp": 2.0}]
-    }]
-    return jsonify({"source": "DECODE_NET", "data": mock_data})
-
-# --- OTRAS APIS (JUEGOS/NASA) ---
+# --- APIS SECUNDARIAS ---
 @app.route("/api/aztlan-predict", methods=["POST"])
 def predict(): return jsonify({"prediccion":"OFFLINE","probabilidad":"0%","analisis_tecnico":"..."})
 @app.route("/api/game-analysis", methods=["POST"])
