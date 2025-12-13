@@ -13,7 +13,8 @@ client = Groq(
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    # ¡AQUÍ ESTÁ EL CAMBIO! Buscamos tu archivo explorador.html
+    return render_template("explorador.html")
 
 # --- API 1: CHAT GENERAL ---
 @app.route("/api/nasa-rag", methods=["POST"])
@@ -28,14 +29,13 @@ def nasa_chat():
         )
         return jsonify({"answer": chat_completion.choices[0].message.content})
     except:
-        return jsonify({"answer": "Error de enlace."})
+        return jsonify({"answer": "Error de enlace con el satélite."})
 
 # --- API 2: PREDICCIÓN PLANETARIA ---
 @app.route("/api/aztlan-predict", methods=["POST"])
 def predict():
     data = request.json
     try:
-        # Lógica simulada para demo rápida
         score = float(data.get('koi_prad', 1)) + (float(data.get('koi_steff', 0))/1000)
         es_planeta = score < 3.0
         return jsonify({
@@ -77,7 +77,7 @@ def nasa_feed():
 def game_analysis():
     data = request.json
     score = data.get('score', 0)
-    prompt = f"El usuario acaba de jugar el simulador de defensa y obtuvo {score} puntos. Eres un instructor militar estricto. Dale un comentario de una frase sobre su desempeño."
+    prompt = f"El usuario obtuvo {score} puntos en el simulador de defensa. Eres un instructor militar. Dale un comentario de una frase."
     try:
         chat_completion = client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}], model="llama3-8b-8192", max_tokens=50
