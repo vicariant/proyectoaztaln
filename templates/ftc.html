@@ -3,142 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FTC DASHBOARD: DECODE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <title>FTC: DECODE 2025-2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #00f3ff; /* Cyan */
-            --secondary: #ff00ff; /* Magenta */
-            --bg: #020408;
-            --panel: rgba(10, 20, 30, 0.95);
+            /* PALETA OFICIAL DECODE / FIRST AGE */
+            --decode-gold: #e5ae32;   /* Oro */
+            --decode-orange: #ea572e; /* Arcilla */
+            --decode-jade: #92dbac;   /* Jade/Verde Antiguo */
+            --decode-teal: #598290;   /* Pizarra/Azul Oscuro */
+            --decode-dark: #121212;   /* Fondo Oscuro */
+            
+            --font-title: 'Cinzel', serif;
+            --font-body: 'Rajdhani', sans-serif;
+            --bg-pattern: repeating-linear-gradient(45deg, #151515 25%, transparent 25%, transparent 75%, #151515 75%, #151515), repeating-linear-gradient(45deg, #151515 25%, #0a0a0a 25%, #0a0a0a 75%, #151515 75%, #151515);
         }
+
         body {
-            margin: 0;
-            background-color: var(--bg);
-            color: white;
-            font-family: 'Rajdhani', sans-serif;
-            background-image: 
-                linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
+            margin: 0; background-color: #050505; 
+            background-image: var(--bg-pattern); background-size: 20px 20px;
+            color: #eee; font-family: var(--font-body); overflow-x: hidden;
         }
+        
+        /* HEADER DECODE */
         header {
-            background: rgba(0,0,0,0.9);
-            border-bottom: 2px solid var(--secondary);
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: linear-gradient(to right, #000, #1a1a1a);
+            border-bottom: 4px solid var(--decode-gold);
+            padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 5px 20px rgba(229, 174, 50, 0.2);
         }
-        h1 { font-family: 'Orbitron', sans-serif; margin: 0; color: var(--secondary); letter-spacing: 2px; }
+        h1 { font-family: var(--font-title); margin: 0; color: var(--decode-gold); font-size: 2em; letter-spacing: 2px; }
+        h1 span { color: var(--decode-jade); font-size: 0.6em; vertical-align: middle; }
         
         .back-btn {
-            background: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            padding: 8px 20px;
-            cursor: pointer;
-            font-family: 'Orbitron';
-            text-decoration: none;
-            font-weight: bold;
-            transition: 0.3s;
+            background: transparent; border: 1px solid var(--decode-jade); color: var(--decode-jade);
+            padding: 8px 20px; text-decoration: none; font-family: var(--font-title); font-weight: bold;
+            transition: 0.3s; clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0% 100%, 0% 30%);
         }
-        .back-btn:hover { background: var(--primary); color: black; box-shadow: 0 0 15px var(--primary); }
+        .back-btn:hover { background: var(--decode-jade); color: #000; }
 
-        /* BANNER TEMPORADA */
-        .season-banner {
-            width: 100%;
-            height: 120px;
-            background: linear-gradient(90deg, #001, #300030);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Orbitron';
-            font-size: 2.5em;
-            color: #fff;
-            text-shadow: 0 0 15px var(--secondary);
-            border-bottom: 1px solid #333;
+        /* SEASON BANNER */
+        .season-hero {
+            text-align: center; padding: 40px 20px;
+            background: radial-gradient(circle at center, rgba(89, 130, 144, 0.3) 0%, rgba(0,0,0,0) 70%);
+            border-bottom: 1px solid var(--decode-teal);
         }
+        .season-logo { 
+            font-family: var(--font-title); font-size: 3.5em; 
+            background: linear-gradient(to bottom, var(--decode-gold), var(--decode-orange));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(229, 174, 50, 0.3);
+        }
+        .season-sub { color: var(--decode-jade); letter-spacing: 4px; font-size: 1.1em; margin-top: 5px; }
 
-        /* GRID DASHBOARD */
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            padding: 30px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .card {
-            background: var(--panel);
-            border: 1px solid #333;
-            border-top: 3px solid var(--primary);
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        }
-        .card h2 { margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px; color: var(--primary); font-size: 1.2em; }
+        /* GRID */
+        .container { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; padding: 20px; max-width: 1400px; margin: 0 auto; }
         
-        .stat-row { display: flex; justify-content: space-between; margin: 12px 0; font-size: 1.1em; border-bottom: 1px dashed #222; padding-bottom: 5px;}
-        .highlight { color: var(--secondary); font-weight: bold; text-shadow: 0 0 5px var(--secondary); }
-        .green { color: #0f0; }
+        /* PANELES ESTILO TECNO-ARQUEOLOGÍA */
+        .panel {
+            background: rgba(20, 20, 20, 0.95); border: 1px solid var(--decode-teal);
+            padding: 20px; position: relative;
+        }
+        .panel::before { /* Adorno de esquina */
+            content: ''; position: absolute; top: 0; left: 0; width: 0; height: 0;
+            border-top: 30px solid var(--decode-gold); border-right: 30px solid transparent;
+        }
+        .panel h2 { 
+            color: var(--decode-jade); margin-top: 0; padding-bottom: 10px; border-bottom: 1px dashed var(--decode-teal);
+            font-family: var(--font-title); display: flex; align-items: center; gap: 10px;
+        }
 
-        /* STATUS DOT */
-        .dot { height: 10px; width: 10px; background-color: #0f0; border-radius: 50%; display: inline-block; box-shadow: 0 0 8px #0f0; margin-right: 8px; }
+        /* TABLA DE EVENTOS */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { text-align: left; color: var(--decode-gold); padding: 8px; font-family: var(--font-title); border-bottom: 1px solid var(--decode-gold); }
+        td { padding: 10px 8px; border-bottom: 1px solid #333; }
+        .score-red { color: var(--decode-orange); font-weight: bold; }
+        .score-blue { color: var(--decode-teal); font-weight: bold; }
 
+        /* JUEGO EXCAVACIÓN (BUSCAMINAS) */
+        .excavation-site {
+            background: #0a0a0a; border: 2px solid var(--decode-orange); padding: 15px;
+            display: flex; flex-direction: column; align-items: center;
+        }
+        .grid {
+            display: grid; grid-template-columns: repeat(8, 30px); gap: 4px; margin: 15px 0;
+        }
+        .cell {
+            width: 30px; height: 30px; background: #333; border: 1px solid #555;
+            display: flex; justify-content: center; align-items: center; cursor: pointer;
+            font-weight: bold; font-family: monospace; user-select: none;
+            transition: 0.2s;
+        }
+        .cell:hover { background: #444; }
+        .cell.revealed { background: #111; border-color: #222; cursor: default; }
+        .cell.trap { background: var(--decode-orange); color: #000; }
+        .cell.artifact { color: var(--decode-jade); }
+        .cell.flag { color: var(--decode-gold); }
+
+        /* CHAT */
+        .chat-box { height: 250px; overflow-y: auto; background: #000; border: 1px solid #333; padding: 10px; margin-bottom: 10px; }
+        .chat-input { width: 100%; background: #111; border: 1px solid var(--decode-teal); color: #fff; padding: 10px; font-family: var(--font-body); }
+        .ai-msg { color: var(--decode-jade); margin: 5px 0; border-left: 2px solid var(--decode-jade); padding-left: 8px; }
+        .user-msg { color: #888; text-align: right; font-style: italic; margin: 5px 0; }
+
+        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
     <header>
-        <div>
-            <h1>DECODE <span style="font-size:0.6em; color:#fff;">SYSTEMS</span></h1>
-            <div style="font-size: 0.9em; color: #888; margin-top:5px;">TEAMS: WAACHMA #28254 | TECHKALLI #28255</div>
-        </div>
-        <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> VOLVER AL OS</a>
+        <h1>DECODE <span>// SYSTEM</span></h1>
+        <a href="/" class="back-btn"><i class="fas fa-satellite"></i> VOLVER AL OS</a>
     </header>
 
-    <div class="season-banner">
-        /// INTO THE DEEP ///
+    <div class="season-hero">
+        <div class="season-logo">FIRST AGE: DECODE</div>
+        <div class="season-sub">TEMPORADA 2025-2026 | ARTEFACTOS & MISTERIOS</div>
     </div>
 
-    <div class="dashboard">
-        <div class="card">
-            <h2><i class="fas fa-robot"></i> ESTADO DEL ROBOT</h2>
-            <div class="stat-row"><div><span class="dot"></span>Conexión:</div> <span class="green">ONLINE</span></div>
-            <div class="stat-row"><div>Batería:</div> <span class="highlight">13.2 V</span></div>
-            <div class="stat-row"><div>Motores:</div> <span>4x GoBilda 5202</span></div>
-            <div class="stat-row"><div>Control Hub:</div> <span class="green">ACTIVO</span></div>
-            <p style="font-size:0.8em; color:#666; margin-top:15px;">> Diagnóstico: Sistema de visión artificial calibrado. Garra lista.</p>
-        </div>
-
-        <div class="card" style="border-top-color: var(--secondary);">
-            <h2><i class="fas fa-trophy"></i> PRÓXIMO EVENTO</h2>
-            <div style="text-align:center; margin: 25px 0;">
-                <h3 style="color:#fff; margin:0;">REGIONAL CDMX</h3>
-                <div style="font-size: 3.5em; font-family:'Orbitron'; color:var(--secondary);">T-5</div>
-                <div style="font-size: 0.9em; color:#888;">DÍAS RESTANTES</div>
+    <div class="container">
+        <div>
+            <div class="panel">
+                <h2><i class="fas fa-globe-americas"></i> RASTREO DE EVENTOS (MÉXICO)</h2>
+                <div id="loading-msg" style="color:var(--decode-teal);">Decodificando señal...</div>
+                <div id="events-container"></div>
             </div>
-            <div class="stat-row"><div>Sede:</div> <div>Tec de Monterrey</div></div>
+
+            <div class="panel" style="margin-top: 20px;">
+                <h2><i class="fas fa-trophy"></i> RANKING DECODE</h2>
+                <table id="rank-table">
+                    <thead><tr><th>#</th><th>EQUIPO</th><th>PUNTOS RP</th></tr></thead>
+                    <tbody id="rank-body"></tbody>
+                </table>
+            </div>
         </div>
 
-        <div class="card">
-            <h2><i class="fas fa-chess-board"></i> ESTRATEGIA DE JUEGO</h2>
-            <ul style="padding-left: 20px; line-height: 1.8; color:#ccc;">
-                <li><strong style="color:var(--primary)">AUTÓNOMO:</strong> Ruta "Alpha_Decode_v4" (Pre-load + 2 Muestras).</li>
-                <li><strong style="color:var(--primary)">TELEOP:</strong> Prioridad en Canasta Alta.</li>
-                <li><strong style="color:var(--primary)">ENDGAME:</strong> Ascenso Nivel 2 garantizado.</li>
-            </ul>
-        </div>
-        
-        <div class="card" style="border-top-color: #fff;">
-            <h2><i class="fas fa-users"></i> ALIANZAS</h2>
-            <div class="stat-row"><div>Match 1:</div> <div>Aliado: #12345 (Pendiente)</div></div>
-            <div class="stat-row"><div>Match 2:</div> <div>Aliado: #67890 (Pendiente)</div></div>
-            <button class="back-btn" style="width:100%; margin-top:10px; font-size:0.8em;">VER SCOUTING DATA</button>
+        <div>
+            <div class="panel">
+                <h2><i class="fas fa-robot"></i> MANUAL DECODE BOT</h2>
+                <div class="chat-box" id="ftc-chat">
+                    <div class="ai-msg">Soy el guardián del reglamento 2025. ¿Qué duda tienes sobre los Artefactos?</div>
+                </div>
+                <input class="chat-input" id="ask-ftc" placeholder="Escribe tu pregunta..." onkeypress="if(event.key==='Enter') sendFtcChat()">
+            </div>
+
+            <div class="panel" style="margin-top: 20px; border-color: var(--decode-orange);">
+                <h2 style="color:var(--decode-orange); border-color:var(--decode-orange);"><i class="fas fa-exclamation-triangle"></i> EXCAVACIÓN DE RIESGO</h2>
+                <div class="excavation-site">
+                    <div style="font-size:0.9em; text-align:center;">
+                        ¡Encuentra los Artefactos sin activar las Trampas!<br>
+                        <span style="color:var(--decode-gold);">Clic Der = Marcar</span>
+                    </div>
+                    <div id="grid" class="grid"></div>
+                    <button onclick="initGame()" class="back-btn" style="border-color:var(--decode-orange); color:var(--decode-orange);">REINICIAR SITIO</button>
+                    <div id="game-status" style="margin-top:10px; font-weight:bold; color:var(--decode-jade);">ESTADO: SEGURO</div>
+                </div>
+            </div>
         </div>
     </div>
 
+    <script>
+        // --- 1. CARGA DE DATOS FTC ---
+        window.onload = async () => {
+            initGame(); // Inicia el Buscaminas
+            try {
+                const res = await fetch('/api/ftc-real');
+                const json = await res.json();
+                document.getElementById('loading-msg').style.display = 'none';
+                
+                const event = json.data[0]; 
+                let html = `<h3 style="color:var(--decode-gold);">${event.event_name}</h3>
+                            <table><thead><tr><th>MATCH</th><th>RED</th><th>BLUE</th></tr></thead><tbody>`;
+                event.matches.forEach(m => {
+                    html += `<tr><td>${m.match}</td><td class="score-red">${m.red} (${m.red_score})</td><td class="score-blue">${m.blue} (${m.blue_score})</td></tr>`;
+                });
+                html += `</tbody></table>`;
+                document.getElementById('events-container').innerHTML = html;
+
+                let ranks = '';
+                event.rankings.forEach(r => {
+                    ranks += `<tr><td>${r.rank}</td><td style="color:${r.team.includes('2825')? 'var(--decode-gold)':'#fff'}">${r.team}</td><td>${r.rp}</td></tr>`;
+                });
+                document.getElementById('rank-body').innerHTML = ranks;
+            } catch(e) { document.getElementById('loading-msg').innerText = "Sin conexión al servidor TOA."; }
+        };
+
+        // --- 2. CHATBOT DECODE ---
+        async function sendFtcChat() {
+            const inp = document.getElementById('ask-ftc');
+            const txt = inp.value; if(!txt)return;
+            const box = document.getElementById('ftc-chat');
+            box.innerHTML += `<div class="user-msg">${txt}</div>`;
+            inp.value = 'Analizando manual...'; inp.disabled=true;
+            try {
+                const r = await fetch('/api/nasa-rag', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({user_query:txt, lang:'es'})});
+                const d = await r.json();
+                box.innerHTML += `<div class="ai-msg">${d.answer}</div>`;
+            } catch(e) { box.innerHTML += `<div style="color:red;">Error de red.</div>`; }
+            inp.value=''; inp.disabled=false; box.scrollTop=box.scrollHeight;
+        }
+
+        // --- 3. JUEGO EXCAVACIÓN (MINESWEEPER) ---
+        const size=8, mines=8;
+        let board=[], revealed=false;
+
+        function initGame() {
+            const g = document.getElementById('grid'); g.innerHTML='';
+            board = Array(size).fill().map(()=>Array(size).fill({mine:false, open:false, flag:false}));
+            let m=0;
+            while(m<mines){
+                let r=Math.floor(Math.random()*size), c=Math.floor(Math.random()*size);
+                if(!board[r][c].mine){ board[r][c]={...board[r][c], mine:true}; m++; }
+            }
+            for(let r=0;r<size;r++) for(let c=0;c<size;c++) {
+                let div = document.createElement('div');
+                div.className = 'cell';
+                div.onclick = ()=>open(r,c);
+                div.oncontextmenu = (e)=>{e.preventDefault(); toggleFlag(r,c,div);};
+                div.id = `c-${r}-${c}`;
+                g.appendChild(div);
+            }
+            document.getElementById('game-status').innerText = "ESTADO: ESCANEANDO...";
+            document.getElementById('game-status').style.color = "var(--decode-jade)";
+            revealed=false;
+        }
+
+        function open(r,c){
+            if(revealed || board[r][c].open || board[r][c].flag) return;
+            let cell = document.getElementById(`c-${r}-${c}`);
+            if(board[r][c].mine){
+                cell.className='cell trap'; cell.innerHTML='<i class="fas fa-skull"></i>';
+                revealAll();
+                document.getElementById('game-status').innerText = "¡TRAMPA ACTIVADA! FIN.";
+                document.getElementById('game-status').style.color = "var(--decode-orange)";
+                return;
+            }
+            let count=0;
+            for(let i=-1;i<=1;i++) for(let j=-1;j<=1;j++) {
+                if(r+i>=0 && r+i<size && c+j>=0 && c+j<size && board[r+i][c+j].mine) count++;
+            }
+            board[r][c].open=true;
+            cell.className='cell revealed';
+            if(count>0) { cell.innerText=count; cell.style.color = ['#000','var(--decode-jade)','var(--decode-gold)','var(--decode-orange)'][count]||'red'; }
+            else { 
+                for(let i=-1;i<=1;i++) for(let j=-1;j<=1;j++) if(r+i>=0 && r+i<size && c+j>=0 && c+j<size) open(r+i,c+j);
+            }
+        }
+
+        function toggleFlag(r,c,div){
+            if(revealed || board[r][c].open) return;
+            board[r][c].flag = !board[r][c].flag;
+            div.innerHTML = board[r][c].flag ? '<i class="fas fa-flag"></i>' : '';
+            div.className = board[r][c].flag ? 'cell flag' : 'cell';
+        }
+
+        function revealAll(){
+            revealed=true;
+            for(let r=0;r<size;r++) for(let c=0;c<size;c++) {
+                if(board[r][c].mine) {
+                    let d=document.getElementById(`c-${r}-${c}`);
+                    d.className='cell trap'; d.innerHTML='<i class="fas fa-skull"></i>';
+                }
+            }
+        }
+    </script>
 </body>
 </html>
