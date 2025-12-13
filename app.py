@@ -13,46 +13,72 @@ client = Groq(
 
 @app.route("/")
 def index():
-    # Carga tu archivo con el diseño v6.0
+    # Asegúrate de que tu archivo HTML se llame 'explorador.html' en la carpeta templates
     return render_template("explorador.html")
 
-# --- API 1: CHAT ORÁCULO ---
+# --- API 1: CHAT ORÁCULO (Multilingüe) ---
 @app.route("/api/nasa-rag", methods=["POST"])
 def nasa_chat():
     data = request.json
     user_query = data.get('user_query')
-    system_msg = "Eres la IA del sistema AZTLAN OS v6. Responde de forma técnica, breve y futurista."
+    lang = data.get('lang', 'es')
+    
+    role_msg = "Eres la IA del sistema AZTLAN OS. Responde de forma breve, técnica y futurista."
+    if lang == 'en':
+        role_msg += " RESPONDE EN INGLÉS."
+    else:
+        role_msg += " RESPONDE EN ESPAÑOL."
+
     try:
         chat_completion = client.chat.completions.create(
-            messages=[{"role": "system", "content": system_msg}, {"role": "user", "content": user_query}],
+            messages=[{"role": "system", "content": role_msg}, {"role": "user", "content": user_query}],
             model="llama3-8b-8192", temperature=0.7,
         )
         return jsonify({"answer": chat_completion.choices[0].message.content})
     except:
-        return jsonify({"answer": "Error de enlace satelital."})
+        return jsonify({"answer": "Error de enlace / Link Error."})
 
-# --- API 2: PREDICCIÓN EXOPLANETAS ---
+# --- API 2: PREDICCIÓN ML (Simulada con IA) ---
 @app.route("/api/aztlan-predict", methods=["POST"])
 def predict():
     data = request.json
+    lang = data.get('lang', 'es')
+    
+    # Usamos la IA para simular un análisis de Machine Learning complejo
+    prompt = f"""
+    Actúa como un algoritmo de clasificación de exoplanetas (Random Forest).
+    Analiza: Radio={data.get('koi_prad')} R_Earth, Temp={data.get('koi_steff')} K.
+    Idioma de respuesta: {'INGLÉS' if lang == 'en' else 'ESPAÑOL'}.
+    
+    1. Determina si es CANDIDATO CONFIRMADO o FALSO POSITIVO (basado en si el radio es < 2.5 y temperatura < 350K).
+    2. Da una probabilidad (ej. 98.4%).
+    3. Da una razón técnica muy breve (1 frase).
+    
+    Formato JSON esperado: {{ "prediccion": "...", "probabilidad": "...", "analisis_tecnico": "..." }}
+    """
+    
     try:
-        # Simulación de análisis basada en los datos
-        score = float(data.get('koi_prad', 1))
-        es_planeta = score < 2.5 # Si es pequeño, probablemente sea rocoso/confirmado
-        
-        return jsonify({
-            "prediccion": "CANDIDATO CONFIRMADO" if es_planeta else "FALSO POSITIVO",
-            "probabilidad": f"{random.randint(88, 99)}.{random.randint(1,9)}%",
-            "analisis_tecnico": f"Radio planetario de {score} R⊕ detectado. {'Dentro' if es_planeta else 'Fuera'} de parámetros habitables."
-        })
+        chat_completion = client.chat.completions.create(
+            messages=[{"role": "system", "content": "Responde solo en JSON válido."}, {"role": "user", "content": prompt}],
+            model="llama3-8b-8192", temperature=0.5,
+        )
+        return chat_completion.choices[0].message.content
     except:
-        return jsonify({"prediccion": "ERROR", "probabilidad": "0%", "analisis_tecnico": "Fallo en sensores."})
+        # Fallback si falla la IA
+        return jsonify({
+            "prediccion": "ERROR", 
+            "probabilidad": "0%", 
+            "analisis_tecnico": "Fallo en sensores / Sensor failure."
+        })
 
 # --- API 3: REPORTE CIENTÍFICO ---
 @app.route("/api/aztlan-deep", methods=["POST"])
 def deep_scan():
     data = request.json
-    prompt = f"Genera un reporte científico breve (formato Markdown) sobre el exoplaneta {data.get('planet_name')}."
+    lang = data.get('lang', 'es')
+    prompt = f"Genera un reporte científico breve sobre el exoplaneta {data.get('planet_name')}."
+    if lang == 'en': prompt += " Write in English."
+    
     try:
         chat_completion = client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}], model="llama3-8b-8192",
@@ -66,7 +92,6 @@ def deep_scan():
 def nasa_feed():
     query = request.args.get('q', 'galaxy')
     try:
-        # Aquí usamos 'requests', por eso es vital ponerlo en requirements.txt
         url = f"https://images-api.nasa.gov/search?q={query}&media_type=image"
         r = requests.get(url).json()
         items = r['collection']['items'][:8]
@@ -74,6 +99,23 @@ def nasa_feed():
         return jsonify(images)
     except:
         return jsonify([])
+
+# --- API 5: ANÁLISIS DE JUEGO (GAME OVER AI) ---
+@app.route("/api/game-analysis", methods=["POST"])
+def game_analysis():
+    data = request.json
+    score = data.get('score', 0)
+    lang = data.get('lang', 'es')
+    prompt = f"El usuario obtuvo {score} puntos en el simulador de defensa espacial. Eres un comandante estricto. Dale un comentario de 1 frase juzgando su desempeño."
+    if lang == 'en': prompt += " Write in English."
+    
+    try:
+        chat_completion = client.chat.completions.create(
+            messages=[{"role": "user", "content": prompt}], model="llama3-8b-8192", max_tokens=60
+        )
+        return jsonify({"comment": chat_completion.choices[0].message.content})
+    except:
+        return jsonify({"comment": "Simulación terminada."})
 
 if __name__ == "__main__":
     app.run(debug=True)
