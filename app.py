@@ -35,10 +35,17 @@ def nasa_chat():
             model="llama3-8b-8192", temperature=0.7,
         )
         return jsonify({"answer": chat_completion.choices[0].message.content})
-    except Exception as e:
-        print(f"ERROR REAL: {e}") # Para verlo en logs
-        return jsonify({"answer": f"ALERTA DEL SISTEMA: {str(e)}"}) # Para verlo en el chat
-
+   except Exception as e:
+        # Esto imprimirá el error real en tu pantalla de chat
+        error_message = str(e)
+        print(f"ERROR CRÍTICO: {error_message}")
+        
+        if "401" in error_message:
+            return jsonify({"answer": "ERROR 401: La llave API está mal puesta en Heroku. Revisa que no tenga espacios."})
+        elif "404" in error_message:
+            return jsonify({"answer": "ERROR 404: El modelo de IA no existe. Avisa al desarrollador."})
+        else:
+            return jsonify({"answer": f"ERROR DESCONOCIDO: {error_message}"})
 # --- API 2: PREDICCIÓN ML (Simulada con IA) ---
 @app.route("/api/aztlan-predict", methods=["POST"])
 def predict():
@@ -120,4 +127,5 @@ def game_analysis():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 
