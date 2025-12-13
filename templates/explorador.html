@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>AZTLAN COMMAND OS v6.5</title>
+<title>AZTLAN COMMAND OS v7.0</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
 
 <style>
-/* =================== ESTILOS CORE (NO CAMBIADOS) =================== */
+/* =================== ESTILOS CORE =================== */
 :root { --bg-deep: #020204; --neon-blue: #00f3ff; --neon-gold: #ffd700; --neon-red: #ff3333; --neon-green: #0aff0a; --panel-bg: rgba(8, 12, 20, 0.98); --font-title: 'Orbitron', sans-serif; --font-body: 'Rajdhani', sans-serif; }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body { margin: 0; background: var(--bg-deep); color: #e0e0e0; font-family: var(--font-body); overflow: hidden; height: 100vh; }
@@ -34,15 +34,14 @@ body { margin: 0; background: var(--bg-deep); color: #e0e0e0; font-family: var(-
 header { position: absolute; top: 0; left: 0; width: 100%; height: 60px; background: rgba(0,0,0,0.8); border-bottom: 1px solid var(--neon-blue); display: flex; justify-content: space-between; align-items: center; padding: 0 20px; z-index: 100; backdrop-filter: blur(10px); }
 .brand { font-family: var(--font-title); font-size: 18px; font-weight: 700; color: var(--neon-gold); letter-spacing: 2px; }
 .level-badge { border: 1px solid var(--neon-blue); padding: 5px 10px; border-radius: 5px; font-size: 12px; color: var(--neon-blue); font-family: monospace; font-weight: bold; }
-/* LANG SWITCHER */
 .lang-toggle { cursor: pointer; border: 1px solid var(--neon-green); color: var(--neon-green); background: transparent; padding: 5px 10px; font-family: var(--font-title); font-size: 12px; margin-right: 15px; }
 .lang-toggle:hover { background: var(--neon-green); color: #000; }
 
-/* DOCK */
+/* DOCK (BARRA LATERAL) */
 .dock { position: absolute; top: 60px; left: 0; bottom: 0; width: 70px; background: rgba(0,0,0,0.6); border-right: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; padding-top: 20px; gap: 20px; z-index: 90; }
-.dock-btn { width: 50px; height: 50px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); color: #888; display: flex; justify-content: center; align-items: center; font-size: 20px; cursor: pointer; transition: 0.3s; }
+.dock-btn { width: 50px; height: 50px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); color: #888; display: flex; justify-content: center; align-items: center; font-size: 20px; cursor: pointer; transition: 0.3s; position: relative; }
 .dock-btn:hover { border-color: var(--neon-blue); color: var(--neon-blue); box-shadow: 0 0 20px rgba(0, 243, 255, 0.3); transform: scale(1.1); }
-.tooltip { position: absolute; left: 60px; background: var(--neon-blue); color: #000; padding: 2px 6px; font-size: 10px; font-weight: bold; border-radius: 4px; display: none; white-space: nowrap; font-family: var(--font-title); }
+.tooltip { position: absolute; left: 60px; background: var(--neon-blue); color: #000; padding: 2px 6px; font-size: 10px; font-weight: bold; border-radius: 4px; display: none; white-space: nowrap; font-family: var(--font-title); pointer-events: none; }
 .dock-btn:hover .tooltip { display: block; }
 
 /* VENTANAS */
@@ -108,7 +107,17 @@ header { position: absolute; top: 0; left: 0; width: 100%; height: 60px; backgro
 <div class="dock">
     <div class="dock-btn" onclick="openWindow('win-nasa')"><i class="fas fa-eye"></i><div class="tooltip">NASA EYES</div></div>
     <div class="dock-btn" onclick="openWindow('win-analysis')"><i class="fas fa-atom"></i><div class="tooltip">ML SCAN</div></div>
-    <div class="dock-btn" onclick="openWindow('win-game')"><i class="fas fa-gamepad"></i><div class="tooltip">DEFENSE</div></div>
+    
+    <div class="dock-btn" onclick="openWindow('win-game')" style="color:var(--neon-red); border-color:var(--neon-red);">
+        <i class="fas fa-gamepad"></i>
+        <div class="tooltip">DEFENSE GAME</div>
+    </div>
+
+    <div class="dock-btn" onclick="window.location.href='/ftc'" style="color:#ff00ff; border-color:#ff00ff;">
+        <i class="fas fa-robot"></i>
+        <div class="tooltip">FTC DASHBOARD</div>
+    </div>
+
     <div class="dock-btn" onclick="openWindow('win-docs')"><i class="fas fa-book"></i><div class="tooltip">DATA</div></div>
     <div class="dock-btn" onclick="openWindow('win-gallery')"><i class="fas fa-satellite"></i><div class="tooltip">GALLERY</div></div>
 </div>
@@ -285,14 +294,7 @@ async function runAnalysis() {
     resBox.style.display='block'; resBox.innerHTML='AI SCANNING...';
     try {
         const r=await fetch('/api/aztlan-predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}); 
-        // La API devuelve un string JSON directo de la IA
-        const rawText = await r.json(); // Flask devuelve string, parseamos si es necesario o si ya es objeto.
-        // Ojo: En app.py devolvemos chat_completion.choices[0].message.content que es TEXTO JSON.
-        // Hacemos un doble parseo si es necesario o confiamos en que Flask lo envía bien.
-        let d;
-        try { d = JSON.parse(rawText); } catch(e) { d = rawText; } 
-        if(typeof d === 'string') d = JSON.parse(d);
-
+        const d = await r.json(); 
         const color=d.prediccion.toUpperCase().includes("CONFIRM")?"var(--neon-green)":"var(--neon-red)";
         if(d.prediccion.toUpperCase().includes("CONFIRM")) addXP(50); else addXP(10);
         resBox.innerHTML=`<div style="font-size:20px;font-weight:bold;color:${color}">${d.prediccion}</div><div style="font-family:monospace;color:var(--neon-blue)">Prob: ${d.probabilidad}</div><div style="font-size:13px;color:#ddd;margin-top:10px;">${d.analisis_tecnico}</div><button onclick='runDeepScan(${JSON.stringify(payload)})' style="margin-top:10px;width:100%;padding:10px;background:var(--neon-gold);border:none;font-weight:bold;cursor:pointer;border-radius:5px;">🔬 REPORTE</button>`;
