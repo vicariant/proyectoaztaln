@@ -128,6 +128,11 @@ def game_analysis():
         return jsonify({"comment": chat_completion.choices[0].message.content})
     except:
         return jsonify({"comment": "Simulación terminada."})
+        # --- RUTA NUEVA PARA FTC ---
+@app.route("/ftc")
+def ftc_dashboard():
+    return render_template("ftc.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
+
