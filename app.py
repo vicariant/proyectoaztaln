@@ -1,7 +1,7 @@
 import os
 import requests
 import random
-import json # Agregamos json por si acaso
+import json
 from flask import Flask, render_template, request, jsonify
 from groq import Groq
 
@@ -12,11 +12,14 @@ client = Groq(
     api_key=os.environ.get("GROQ_API_KEY"),
 )
 
+# --- MODELO NUEVO (ACTUALIZADO) ---
+MODELO_IA = "llama-3.3-70b-versatile"
+
 @app.route("/")
 def index():
     return render_template("explorador.html")
 
-# --- API 1: CHAT ORÁCULO (CON DETECTOR DE ERRORES) ---
+# --- API 1: CHAT ORÁCULO ---
 @app.route("/api/nasa-rag", methods=["POST"])
 def nasa_chat():
     try:
@@ -29,21 +32,14 @@ def nasa_chat():
         
         chat_completion = client.chat.completions.create(
             messages=[{"role": "system", "content": role_msg}, {"role": "user", "content": user_query}],
-            model="llama3-8b-8192", temperature=0.7,
+            model=MODELO_IA, temperature=0.7,
         )
         return jsonify({"answer": chat_completion.choices[0].message.content})
 
     except Exception as e:
-        # AQUÍ ESTÁ EL DETECTIVE DE ERRORES
         error_msg = str(e)
-        print(f"ERROR CRÍTICO EN HEROKU: {error_msg}") # Esto sale en los logs
-        
-        if "401" in error_msg:
-            return jsonify({"answer": "⚠️ ERROR 401: La llave API es incorrecta. Revisa 'Config Vars' en Heroku."})
-        elif "404" in error_msg:
-            return jsonify({"answer": "⚠️ ERROR 404: El modelo de IA no responde."})
-        else:
-            return jsonify({"answer": f"⚠️ ERROR DEL SISTEMA: {error_msg}"})
+        print(f"ERROR: {error_msg}")
+        return jsonify({"answer": f"⚠️ ERROR DE SISTEMA: {error_msg}"})
 
 # --- API 2: PREDICCIÓN ML ---
 @app.route("/api/aztlan-predict", methods=["POST"])
@@ -55,7 +51,7 @@ def predict():
         
         chat_completion = client.chat.completions.create(
             messages=[{"role": "user", "content": prompt}],
-            model="llama3-8b-8192", temperature=0.5,
+            model=MODELO_IA, temperature=0.5,
         )
         return chat_completion.choices[0].message.content
     except Exception as e:
@@ -68,7 +64,7 @@ def deep_scan():
         data = request.json
         prompt = f"Reporte corto sobre {data.get('planet_name')}."
         chat_completion = client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}], model="llama3-8b-8192",
+            messages=[{"role": "user", "content": prompt}], model=MODELO_IA,
         )
         return jsonify({"report": chat_completion.choices[0].message.content})
     except:
@@ -94,7 +90,7 @@ def game_analysis():
         data = request.json
         prompt = f"Jugador obtuvo {data.get('score')} puntos. Comentario breve militar."
         chat_completion = client.chat.completions.create(
-            messages=[{"role": "user", "content": prompt}], model="llama3-8b-8192", max_tokens=60
+            messages=[{"role": "user", "content": prompt}], model=MODELO_IA, max_tokens=60
         )
         return jsonify({"comment": chat_completion.choices[0].message.content})
     except:
