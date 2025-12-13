@@ -3,206 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FTC EVENTS: MEXICO REGION</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <title>FTC DECODE: MEXICO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* TEMÁTICA DECODE + ESTRUCTURA OFICIAL */
         :root {
-            --primary: #003974; /* Azul Oficial FIRST (Oscurecido) */
-            --accent: #ffd700;  /* Dorado Decode */
-            --bg: #121212;
-            --panel: #1e1e1e;
-            --text: #e0e0e0;
-            --border: #333;
+            --gold: #ffd700;
+            --dark: #0a0a12;
+            --panel: rgba(20, 25, 35, 0.95);
+            --accent: #ff6b35; /* Naranja DECODE */
         }
+        body { margin: 0; background: var(--dark); color: #ddd; font-family: 'Rajdhani', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* FONDO */
+        .bg-anim { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: url('https://www.transparenttextures.com/patterns/cubes.png'); opacity: 0.1; }
 
-        body { margin: 0; background-color: var(--bg); color: var(--text); font-family: 'Roboto', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-
-        /* HEADER TIPO OFICIAL PERO OSCURO */
-        nav {
-            background-color: #0d1b2a; border-bottom: 3px solid var(--accent); padding: 15px 20px;
-            display: flex; justify-content: space-between; align-items: center;
+        /* HEADER */
+        header { 
+            background: #000; border-bottom: 2px solid var(--gold); padding: 15px 30px; 
+            display: flex; justify-content: space-between; align-items: center; 
         }
-        .nav-brand { font-family: 'Orbitron'; font-size: 1.5em; color: white; display: flex; align-items: center; gap: 10px; }
-        .nav-brand img { height: 40px; }
-        .nav-right button {
-            background: transparent; border: 1px solid var(--accent); color: var(--accent);
-            padding: 8px 15px; cursor: pointer; border-radius: 4px; font-weight: bold; transition: 0.2s;
+        .logo { font-family: 'Orbitron'; font-size: 1.5em; color: var(--gold); letter-spacing: 2px; }
+        .logo span { color: var(--accent); font-size: 0.7em; }
+        .btn-exit { 
+            border: 1px solid var(--gold); color: var(--gold); background: transparent; 
+            padding: 5px 15px; cursor: pointer; font-family: 'Orbitron'; transition: 0.3s;
         }
-        .nav-right button:hover { background: var(--accent); color: #000; }
+        .btn-exit:hover { background: var(--gold); color: #000; }
 
         /* CONTENEDOR PRINCIPAL */
-        .container { flex: 1; display: grid; grid-template-columns: 3fr 1fr; gap: 20px; padding: 20px; overflow: hidden; }
+        .dashboard { flex: 1; display: grid; grid-template-columns: 3fr 1fr; gap: 20px; padding: 20px; overflow: hidden; }
 
-        /* SECCIÓN DE DATOS (IZQUIERDA) */
-        .data-section { background: var(--panel); border-radius: 5px; border: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+        /* SECCIÓN IZQUIERDA: DATOS */
+        .data-panel { background: var(--panel); border: 1px solid #333; border-radius: 8px; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* PESTAÑAS (TABS) */
-        .tabs { display: flex; background: #000; border-bottom: 1px solid var(--border); }
+        /* PESTAÑAS */
+        .tabs { display: flex; background: #151515; border-bottom: 1px solid #333; }
         .tab { 
-            padding: 15px 25px; cursor: pointer; color: #888; font-weight: bold; border-right: 1px solid var(--border); 
-            display: flex; align-items: center; gap: 8px;
+            padding: 15px 30px; cursor: pointer; font-weight: bold; color: #888; border-right: 1px solid #222;
+            font-family: 'Orbitron'; transition: 0.3s;
         }
-        .tab:hover { background: #222; color: #fff; }
-        .tab.active { background: var(--panel); color: var(--accent); border-top: 3px solid var(--accent); }
+        .tab:hover { color: #fff; background: #222; }
+        .tab.active { color: var(--gold); background: var(--panel); border-top: 3px solid var(--gold); }
 
-        /* TABLA DE DATOS */
-        .table-container { flex: 1; overflow-y: auto; padding: 0; }
+        /* TABLAS */
+        .table-wrap { flex: 1; overflow-y: auto; padding: 0; }
         table { width: 100%; border-collapse: collapse; }
-        th { background: #252525; color: var(--accent); text-align: left; padding: 12px 15px; position: sticky; top: 0; font-size: 0.9em; text-transform: uppercase; border-bottom: 2px solid #444; }
-        td { padding: 12px 15px; border-bottom: 1px solid var(--border); color: #ccc; font-size: 0.95em; }
+        th { text-align: left; padding: 15px; background: #1a1a1a; color: var(--accent); position: sticky; top: 0; border-bottom: 2px solid #333; font-family: 'Orbitron'; font-size: 0.9em; }
+        td { padding: 12px 15px; border-bottom: 1px solid #222; }
         tr:hover { background: rgba(255, 215, 0, 0.05); }
-        .status-dot { height: 10px; width: 10px; background-color: #444; border-radius: 50%; display: inline-block; margin-right: 5px; }
-        .status-live { background-color: #0f0; box-shadow: 0 0 5px #0f0; }
+        .status-badge { background: #222; padding: 3px 8px; border-radius: 4px; font-size: 0.8em; border: 1px solid #444; }
+        .live { border-color: #0f0; color: #0f0; box-shadow: 0 0 5px #0f0; }
 
-        /* BARRA LATERAL (CHATBOT) */
-        .sidebar { display: flex; flex-direction: column; gap: 20px; }
-        .widget { background: var(--panel); border: 1px solid var(--border); border-radius: 5px; display: flex; flex-direction: column; overflow: hidden; height: 50%; }
-        .widget-header { background: #252525; padding: 10px 15px; color: var(--accent); font-weight: bold; border-bottom: 1px solid var(--border); font-family: 'Orbitron'; }
+        /* SECCIÓN DERECHA: IA */
+        .side-panel { display: flex; flex-direction: column; gap: 20px; }
+        .widget { background: var(--panel); border: 1px solid #333; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
+        .widget-head { background: #1a1a1a; padding: 10px; color: var(--gold); font-family: 'Orbitron'; font-size: 0.9em; border-bottom: 1px solid #333; }
         
-        .chat-content { flex: 1; padding: 15px; overflow-y: auto; font-size: 0.9em; display: flex; flex-direction: column; gap: 10px; }
-        .chat-input-area { padding: 10px; background: #000; border-top: 1px solid var(--border); }
-        .chat-input { width: 100%; background: #222; border: 1px solid #444; color: white; padding: 8px; border-radius: 4px; }
-        
-        .ai-msg { align-self: flex-start; background: #2a2a2a; padding: 8px 12px; border-radius: 0 10px 10px 10px; border-left: 2px solid var(--accent); }
-        .user-msg { align-self: flex-end; background: #003974; color: white; padding: 8px 12px; border-radius: 10px 10px 0 10px; }
+        .chat-area { height: 250px; overflow-y: auto; padding: 10px; font-size: 0.9em; }
+        .chat-in { background: #000; border: none; border-top: 1px solid #333; padding: 10px; color: #fff; width: 100%; }
+        .ai-msg { color: var(--gold); margin-bottom: 8px; border-left: 2px solid var(--gold); padding-left: 8px; }
+        .user-msg { color: #aaa; text-align: right; margin-bottom: 8px; }
 
-        /* MINIJUEGO SIMPLE EN LA BARRA LATERAL */
-        .game-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .mine-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2px; }
-        .mine-cell { width: 25px; height: 25px; background: #333; border: 1px solid #444; cursor: pointer; }
-        .mine-cell:hover { background: #555; }
-        .mine-safe { background: #003974; }
-        .mine-boom { background: #d32f2f; }
-
-        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } .sidebar { display: none; } }
+        @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } .side-panel { display: none; } }
     </style>
 </head>
 <body>
+    <div class="bg-anim"></div>
+    
+    <header>
+        <div class="logo">FTC <span>REGION MX</span></div>
+        <button class="btn-exit" onclick="window.location.href='/'">SALIR</button>
+    </header>
 
-    <nav>
-        <div class="nav-brand">
-            <i class="fas fa-robot"></i> FTC EVENTS <span style="font-size:0.6em; color:#888; margin-left:10px;">| REGION: MÉXICO</span>
-        </div>
-        <div class="nav-right">
-            <button onclick="window.location.href='/'">SALIR AL OS</button>
-        </div>
-    </nav>
-
-    <div class="container">
-        <div class="data-section">
+    <div class="dashboard">
+        
+        <div class="data-panel">
             <div class="tabs">
-                <div class="tab active" onclick="switchTab('events')" id="tab-events"><i class="fas fa-calendar-alt"></i> EVENTOS</div>
-                <div class="tab" onclick="switchTab('teams')" id="tab-teams"><i class="fas fa-users"></i> EQUIPOS</div>
+                <div class="tab active" onclick="setTab('events')" id="t-events">📡 EVENTOS</div>
+                <div class="tab" onclick="setTab('teams')" id="t-teams">🛡️ EQUIPOS</div>
             </div>
 
-            <div id="view-events" class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th width="10%">ESTADO</th>
-                            <th width="50%">NOMBRE DEL EVENTO</th>
-                            <th width="40%">ENLACE OFICIAL</th>
-                        </tr>
-                    </thead>
-                    <tbody id="events-body">
-                        <tr><td colspan="3" style="text-align:center; padding:20px;">Cargando datos de la región MX...</td></tr>
-                    </tbody>
+            <div id="view-events" class="table-wrap">
+                <div id="loader-ev" style="padding:20px; text-align:center; color:#888;">Extrayendo datos de firstinspires.org...</div>
+                <table id="tbl-events" style="display:none;">
+                    <thead><tr><th>ESTADO</th><th>NOMBRE DEL EVENTO</th><th>ACCIÓN</th></tr></thead>
+                    <tbody id="body-events"></tbody>
                 </table>
             </div>
 
-            <div id="view-teams" class="table-container" style="display:none;">
-                <div style="padding:10px; background:#222; border-bottom:1px solid #333;">
-                    <input type="text" placeholder="Buscar equipo..." style="background:#000; border:1px solid #444; color:white; padding:5px; width:100%;">
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th># NÚMERO</th>
-                            <th>NOMBRE</th>
-                            <th>UBICACIÓN</th>
-                        </tr>
-                    </thead>
-                    <tbody id="teams-body">
-                        </tbody>
+            <div id="view-teams" class="table-wrap" style="display:none;">
+                <table id="tbl-teams">
+                    <thead><tr><th># ID</th><th>NOMBRE</th><th>UBICACIÓN</th></tr></thead>
+                    <tbody id="body-teams"></tbody>
                 </table>
             </div>
         </div>
 
-        <div class="sidebar">
+        <div class="side-panel">
             <div class="widget">
-                <div class="widget-header"><i class="fas fa-balance-scale"></i> JUEZ VIRTUAL (AI)</div>
-                <div class="chat-content" id="chat-content">
-                    <div class="ai-msg">Saludos. Soy un recurso neutral para el reglamento 2025-2026.</div>
+                <div class="widget-head">JUEZ IA (NEUTRAL)</div>
+                <div class="chat-area" id="chat-box">
+                    <div class="ai-msg">Sistema listo. Consultas sobre el reglamento DECODE aquí.</div>
                 </div>
-                <div class="chat-input-area">
-                    <input class="chat-input" id="ask-input" placeholder="Duda de reglamento..." onkeypress="if(event.key==='Enter') sendChat()">
-                </div>
+                <input class="chat-in" id="chat-input" placeholder="Pregunta..." onkeypress="if(event.key==='Enter') sendChat()">
             </div>
-
-            <div class="widget">
-                <div class="widget-header"><i class="fas fa-gamepad"></i> ESPERA ACTIVA</div>
-                <div class="game-area">
-                    <div id="mines" class="mine-grid"></div>
-                    <button onclick="initGame()" style="margin-top:10px; background:#333; color:#fff; border:none; padding:5px;">REINICIAR</button>
+            
+            <div class="widget" style="flex:1;">
+                <div class="widget-head">ESTADO DEL SISTEMA</div>
+                <div style="padding:20px; text-align:center; color:#555;">
+                    <i class="fas fa-server fa-3x"></i><br><br>
+                    CONEXIÓN ESTABLE<br>
+                    <span style="color:var(--gold);">REGION: MEXICO</span>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- 1. CARGA DE DATOS ---
-        window.onload = async () => {
-            initGame(); // Iniciar juego
+        // --- INICIAR ---
+        window.onload = loadData;
+
+        // --- CARGAR DATOS DEL SCRAPER ---
+        async function loadData() {
             try {
                 const res = await fetch('/api/ftc-mexico-data');
                 const data = await res.json();
                 
-                // Llenar Eventos
-                const evBody = document.getElementById('events-body');
-                evBody.innerHTML = '';
-                if(data.events.length === 0) {
-                     evBody.innerHTML = '<tr><td colspan="3" style="text-align:center;">No hay eventos activos detectados hoy.</td></tr>';
+                // 1. LLENAR EVENTOS
+                const evBody = document.getElementById('body-events');
+                document.getElementById('loader-ev').style.display = 'none';
+                document.getElementById('tbl-events').style.display = 'table';
+                
+                if (data.events.length === 0) {
+                    evBody.innerHTML = "<tr><td colspan='3' style='text-align:center'>No se encontraron eventos activos hoy.</td></tr>";
                 } else {
-                    data.events.forEach(ev => {
-                        const isLive = ev.status.includes("EN CURSO");
+                    data.events.forEach(e => {
+                        const isLive = e.status.includes('EN CURSO');
                         evBody.innerHTML += `
                         <tr>
-                            <td><span class="status-dot ${isLive?'status-live':''}"></span> ${isLive ? 'LIVE' : 'FUTURO'}</td>
-                            <td style="font-weight:bold; color:var(--accent);">${ev.name}</td>
-                            <td><a href="${ev.url}" target="_blank" style="color:#4fa3ff;">Ver Resultados Oficiales <i class="fas fa-external-link-alt"></i></a></td>
+                            <td><span class="status-badge ${isLive?'live':''}">${e.status}</span></td>
+                            <td style="font-weight:bold; color:#fff;">${e.name}</td>
+                            <td><a href="${e.link}" target="_blank" style="color:var(--accent);">VER DATOS OFICIALES <i class="fas fa-external-link-alt"></i></a></td>
                         </tr>`;
                     });
                 }
 
-                // Llenar Equipos
-                const tmBody = document.getElementById('teams-body');
-                tmBody.innerHTML = '';
-                data.teams.forEach(tm => {
-                    tmBody.innerHTML += `<tr><td>${tm.number}</td><td style="font-weight:bold;">${tm.name}</td><td>${tm.loc}</td></tr>`;
+                // 2. LLENAR EQUIPOS
+                const tmBody = document.getElementById('body-teams');
+                data.teams.forEach(t => {
+                    tmBody.innerHTML += `
+                    <tr>
+                        <td style="color:var(--gold); font-family:'Orbitron'">${t.id}</td>
+                        <td style="font-weight:bold;">${t.name}</td>
+                        <td style="color:#888;">${t.loc}</td>
+                    </tr>`;
                 });
 
-            } catch(e) {
-                console.log(e);
+            } catch (error) {
+                document.getElementById('loader-ev').innerText = "Error de conexión con el servidor.";
             }
-        };
+        }
 
-        // --- 2. PESTAÑAS ---
-        function switchTab(tab) {
+        // --- PESTAÑAS ---
+        function setTab(tab) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-'+tab).classList.add('active');
+            document.getElementById('t-'+tab).classList.add('active');
             
             document.getElementById('view-events').style.display = tab === 'events' ? 'block' : 'none';
             document.getElementById('view-teams').style.display = tab === 'teams' ? 'block' : 'none';
         }
 
-        // --- 3. CHATBOT ---
+        // --- CHATBOT ---
         async function sendChat() {
-            const inp = document.getElementById('ask-input');
-            const txt = inp.value; if(!txt) return;
-            const box = document.getElementById('chat-content');
+            const inp = document.getElementById('chat-input');
+            const txt = inp.value; if(!txt)return;
             
+            const box = document.getElementById('chat-box');
             box.innerHTML += `<div class="user-msg">${txt}</div>`;
             inp.value = '';
             
@@ -214,20 +191,7 @@
                 const d = await r.json();
                 box.innerHTML += `<div class="ai-msg">${d.answer}</div>`;
                 box.scrollTop = box.scrollHeight;
-            } catch(e) {
-                box.innerHTML += `<div class="ai-msg" style="color:red;">Error de conexión.</div>`;
-            }
-        }
-
-        // --- 4. MINIJUEGO ---
-        function initGame() {
-            const g = document.getElementById('mines'); g.innerHTML='';
-            for(let i=0; i<36; i++) {
-                let d = document.createElement('div'); d.className='mine-cell';
-                let isMine = Math.random() < 0.2;
-                d.onclick = () => { d.className = isMine ? 'mine-cell mine-boom' : 'mine-cell mine-safe'; };
-                g.appendChild(d);
-            }
+            } catch(e) { box.innerHTML += `<div class="ai-msg" style="color:red">Error.</div>`; }
         }
     </script>
 </body>
