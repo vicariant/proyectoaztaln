@@ -1,88 +1,179 @@
-from flask import Flask, render_template, jsonify, request
-import requests
 import os
-from datetime import datetime
+import requests
+from flask import Flask, render_template, request, jsonify
+from groq import Groq
 
 app = Flask(__name__)
 
-TOA_API_KEY = os.getenv('TOA_API_KEY', '')
-TOA_BASE_URL = 'https://theorangealliance.org/api'
-TOA_HEADERS = {'X-TOA-Key': TOA_API_KEY, 'Content-Type': 'application/json'}
+# ==========================================
+# CONFIGURACIÓN DE LLAVES (KEYS)
+# ==========================================
+# Pon tus llaves aquí o en las "Config Vars" de Heroku
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+TOA_API_KEY = os.environ.get("TOA_API_KEY", "") 
 
-MOCK_DATA = {
-    'events': [
-        {'event_key': '2425-MX-CDMX-01', 'event_name': 'Torneo Regional CDMX', 'start_date': '2025-01-15', 'city': 'Ciudad de México', 'venue': 'Centro de Convenciones'},
-        {'event_key': '2425-MX-MTY-01', 'event_name': 'Torneo Regional Monterrey', 'start_date': '2025-02-10', 'city': 'Monterrey', 'venue': 'Arena Tecnológica'},
-        {'event_key': '2425-MX-GDL-01', 'event_name': 'Torneo Regional Guadalajara', 'start_date': '2025-02-20', 'city': 'Guadalajara', 'venue': 'Expo Guadalajara'}
-    ],
-    'teams': [
-        {'team_key': '28254', 'team_number': 28254, 'team_name_short': 'Tech Saurus', 'city': 'Ciudad de México', 'rookie_year': 2023, 'rp_total': 145},
-        {'team_key': '28255', 'team_number': 28255, 'team_name_short': 'Decode Masters', 'city': 'Monterrey', 'rookie_year': 2022, 'rp_total': 167},
-        {'team_key': '11111', 'team_number': 11111, 'team_name_short': 'Robo Warriors', 'city': 'Guadalajara', 'rookie_year': 2021, 'rp_total': 132},
-        {'team_key': '22222', 'team_number': 22222, 'team_name_short': 'Cyber Knights', 'city': 'Puebla', 'rookie_year': 2024, 'rp_total': 98},
-        {'team_key': '33333', 'team_number': 33333, 'team_name_short': 'Code Breakers', 'city': 'Querétaro', 'rookie_year': 2023, 'rp_total': 115}
-    ],
-    'team_details': {
-        '28254': {'awards': [{'award_name': 'Inspire Award'}, {'award_name': 'Winning Alliance Captain'}], 'rankings': {'rp': 145, 'rank': 3}},
-        '28255': {'awards': [{'award_name': 'Think Award'}, {'award_name': 'Connect Award'}], 'rankings': {'rp': 167, 'rank': 1}},
-        '11111': {'awards': [{'award_name': 'Design Award'}], 'rankings': {'rp': 132, 'rank': 5}},
-        '22222': {'awards': [], 'rankings': {'rp': 98, 'rank': 12}},
-        '33333': {'awards': [{'award_name': 'Innovate Award'}], 'rankings': {'rp': 115, 'rank': 8}}
-    }
-}
+# Configuración de IA
+client = Groq(api_key=GROQ_API_KEY)
+MODELO_IA = "llama-3.3-70b-versatile"
 
-CHATBOT_RESPONSES = {
-    'puntos': 'En FTC DECODE, los puntos se otorgan por: colocar muestras en zonas (5-10 pts), ascender niveles (15-30 pts), y parkear en zonas seguras (5-15 pts). Los Ranking Points (RP) se calculan sumando puntos de clasificación + bonificaciones por premios.',
-    'premios': 'Premios principales: Inspire Award (+15 RP), Think Award (+10 RP), Connect Award (+10 RP), Innovate Award (+8 RP), Design Award (+8 RP), Control Award (+5 RP), Motivate Award (+5 RP), Winning Alliance (+10 RP).',
-    'clasificar': 'Para clasificar se necesitan típicamente más de 120 RP totales. Los equipos en la "Lista Verde" (clasificados retroactivos) avanzan automáticamente.',
-    'robot': 'El robot debe caber en 18"x18"x18" al inicio, puede expandirse durante el match. Peso máximo: 42 lbs (19 kg). Debe usar componentes legales FIRST.',
-    'autonomo': 'Período autónomo: 30 segundos sin control humano. Bonificaciones por parkear, colocar muestras y completar navegación.',
-    'teleop': 'TeleOperado: 2 minutos con control manual. Se manipulan elementos, ascender estructuras y posicionar para EndGame.',
-    'endgame': 'Últimos 30 segundos del TeleOp. Puntos extra por ascender niveles, parkear en zonas específicas y completar tareas de cierre.',
-    'falta': 'Faltas: contacto destructivo (Minor/Major), salir del campo, interferir con oponente, violar seguridad. Major Fouls dan puntos al oponente.'
-}
+# Temporada Actual (Cambiar a '2526' cuando inicie oficialmente DECODE)
+SEASON_KEY = "2425" 
 
-def fetch_api(endpoint, params=None):
-    if not TOA_API_KEY:
-        return None
-    try:
-        r = requests.get(f'{TOA_BASE_URL}/{endpoint}', headers=TOA_HEADERS, params=params, timeout=5)
-        return r.json() if r.status_code == 200 else None
-    except:
-        return None
-
-@app.route('/')
+@app.route("/")
 def index():
-    return render_template('ftc.html')
+    return render_template("explorador.html")
 
-@app.route('/api/ftc-mexico-data')
-def get_ftc_mexico_data():
-    events = fetch_api('events', {'region_key': 'MX', 'season_key': '2425'}) or MOCK_DATA['events']
-    teams = fetch_api('teams', {'region_key': 'MX'}) or MOCK_DATA['teams']
-    return jsonify({'status': 'success', 'source': 'live' if TOA_API_KEY else 'mock', 'events': events, 'teams': teams})
+@app.route("/ftc")
+def ftc_dashboard():
+    return render_template("ftc.html")
 
-@app.route('/api/team-detail/<team_key>')
-def get_team_detail(team_key):
-    awards = fetch_api(f'team/{team_key}/awards')
-    rankings = fetch_api(f'team/{team_key}/rankings/2425')
-    
-    if awards and rankings:
-        return jsonify({'status': 'success', 'source': 'live', 'awards': awards, 'rankings': rankings})
-    
-    details = MOCK_DATA['team_details'].get(team_key, {'awards': [], 'rankings': {'rp': 0, 'rank': 0}})
-    return jsonify({'status': 'success', 'source': 'mock', **details})
+# ==========================================
+# API 1: CHATBOT JUEZ NEUTRAL
+# ==========================================
+@app.route("/api/nasa-rag", methods=["POST"])
+def nasa_chat():
+    try:
+        data = request.json
+        mode = data.get('mode', 'nasa')
+        user_query = data.get('user_query')
+        
+        if mode == 'ftc':
+            role_msg = """
+            Eres la IA Juez Oficial de FIRST Tech Challenge.
+            TU ROL:
+            1. Actuar como 'Head Referee'. Eres neutral, técnico y preciso.
+            2. Tu base de conocimiento es el Game Manual Part 1 y 2.
+            3. Ayudas a cualquier equipo (Waachma, Techkalli, Voltec, etc.) por igual.
+            4. Responde dudas sobre: Autonomous, TeleOp, End Game, Penalizaciones y Puntuación.
+            """
+        else:
+            role_msg = "Eres la IA del sistema AZTLAN OS. Respondes como una computadora de nave espacial."
+            
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": role_msg}, 
+                {"role": "user", "content": user_query}
+            ],
+            model=MODELO_IA, temperature=0.6,
+        )
+        return jsonify({"answer": chat_completion.choices[0].message.content})
+    except Exception as e:
+        return jsonify({"answer": f"Error de comunicación con el Juez: {str(e)}"})
 
-@app.route('/api/nasa-rag', methods=['POST'])
-def nasa_rag_chatbot():
-    question = request.json.get('question', '').lower()
-    response = 'Como Juez Neutral de FTC, consulta el Game Manual oficial para detalles específicos. Pregunta sobre: puntos, premios, clasificación, robot, autónomo, teleop, endgame o faltas.'
+# ==========================================
+# API 2: DATOS GENERALES (EVENTOS Y EQUIPOS)
+# ==========================================
+@app.route("/api/ftc-mexico-data", methods=["GET"])
+def ftc_mexico_data():
+    data = {"events": [], "teams": [], "source": "BACKUP"}
     
-    for keyword, answer in CHATBOT_RESPONSES.items():
-        if keyword in question:
-            response = f'⚖️ **Respuesta del Juez Neutral**: {answer}'
-            break
-    
-    return jsonify({'status': 'success', 'response': response, 'timestamp': datetime.now().isoformat()})
+    # Intentar conexión real con TOA
+    if TOA_API_KEY:
+        headers = {
+            'Content-Type': 'application/json',
+            'X-TOA-Key': TOA_API_KEY,
+            'X-Application-Origin': 'AztlanDecode'
+        }
+        try:
+            # 1. OBTENER EVENTOS DE MÉXICO
+            res_ev = requests.get(f'https://theorangealliance.org/api/event?region_key=MX&season_key={SEASON_KEY}', headers=headers)
+            if res_ev.status_code == 200:
+                for ev in res_ev.json():
+                    data["events"].append({
+                        "event_name": ev['event_name'],
+                        "start_date": ev['start_date'].split('T')[0],
+                        "city": ev['city'],
+                        "state": ev['state_prov'],
+                        "venue": ev['venue'],
+                        "type": ev['event_type_key'] # CMP, QT, etc.
+                    })
+                data["source"] = "TOA_LIVE"
 
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+            # 2. OBTENER EQUIPOS DE MÉXICO (Activos)
+            res_tm = requests.get(f'https://theorangealliance.org/api/team?region_key=MX&last_active={SEASON_KEY}', headers=headers)
+            if res_tm.status_code == 200:
+                teams_raw = res_tm.json()
+                # Ordenar por número de equipo
+                teams_raw.sort(key=lambda x: x['team_number'])
+                
+                for t in teams_raw:
+                    # Intentar buscar RP totales si están disponibles en el objeto (a veces TOA no lo manda directo aquí)
+                    data["teams"].append({
+                        "team_key": t['team_key'],
+                        "team_number": t['team_number'],
+                        "team_name_short": t['team_name_short'],
+                        "city": t['city'],
+                        "state": t['state_prov'],
+                        "rookie_year": t['rookie_year'],
+                        "rp_total": 0 # Se llenará en el detalle o con otra llamada si fuera necesario
+                    })
+
+        except Exception as e:
+            print(f"Error TOA: {e}")
+
+    # --- DATOS DE RESPALDO (SI FALLA TOA) ---
+    if not data["events"]:
+        data["events"] = [
+            {"event_name": "Regional CDMX", "start_date": "2025-12-13", "city": "Mexico City", "state": "CMX", "venue": "PrepaTec CCM", "type": "QT"},
+            {"event_name": "Regional Monterrey", "start_date": "2026-01-10", "city": "Monterrey", "state": "NLE", "venue": "PrepaTec Garza Sada", "type": "QT"},
+            {"event_name": "Campeonato Nacional", "start_date": "2026-03-15", "city": "TBD", "state": "MX", "venue": "TBD", "type": "CMP"}
+        ]
+    
+    if not data["teams"]:
+        # Lista simulada para que no se vea vacío
+        data["teams"] = [
+            {"team_key": "28254", "team_number": 28254, "team_name_short": "Waachma", "city": "Tecámac", "state": "MEX", "rookie_year": 2024, "rp_total": 350},
+            {"team_key": "28255", "team_number": 28255, "team_name_short": "Techkalli", "city": "Tecámac", "state": "MEX", "rookie_year": 2024, "rp_total": 320},
+            {"team_key": "11111", "team_number": 11111, "team_name_short": "Voltec", "city": "Monterrey", "state": "NLE", "rookie_year": 2016, "rp_total": 410}
+        ]
+
+    return jsonify(data)
+
+# ==========================================
+# API 3: DETALLE DE EQUIPO (PREMIOS Y RANKINGS)
+# ==========================================
+@app.route("/api/team-detail/<team_key>", methods=["GET"])
+def team_detail(team_key):
+    detail = {"rankings": {"rp": 0, "rank": 0}, "awards": []}
+    
+    if TOA_API_KEY:
+        headers = {'Content-Type': 'application/json', 'X-TOA-Key': TOA_API_KEY, 'X-Application-Origin': 'AztlanDecode'}
+        try:
+            # 1. OBTENER RANKINGS/RESULTADOS
+            res_res = requests.get(f'https://theorangealliance.org/api/team/{team_key}/results/{SEASON_KEY}', headers=headers)
+            if res_res.status_code == 200:
+                results = res_res.json()
+                total_rp = 0
+                for r in results:
+                    # Sumamos los Ranking Points de todos los eventos jugados
+                    total_rp += r.get('ranking_points', 0)
+                
+                # Asignamos el total
+                detail["rankings"]["rp"] = total_rp
+                # El rank global es complejo de calcular, lo dejamos en 0 o tomamos el del último evento si existe
+
+            # 2. OBTENER PREMIOS (AWARDS)
+            res_aw = requests.get(f'https://theorangealliance.org/api/team/{team_key}/awards/{SEASON_KEY}', headers=headers)
+            if res_aw.status_code == 200:
+                awards_data = res_aw.json()
+                for aw in awards_data:
+                    detail["awards"].append({
+                        "award_key": aw['award_key'],
+                        "award_name": aw['award_name'] # Ej: "Inspire Award Winner"
+                    })
+
+        except Exception as e:
+            print(f"Error Detalle TOA: {e}")
+
+    # --- SIMULACIÓN PARA WAACHMA (28254) SI NO HAY DATOS ---
+    if not detail["awards"] and team_key == "28254":
+        detail["rankings"]["rp"] = 150
+        detail["awards"] = [
+            {"award_name": "Connect Award Winner"},
+            {"award_name": "Finalist Alliance Captain"}
+        ]
+        
+    return jsonify(detail)
+
+if __name__ == "__main__":
+    app.run(debug=True)
