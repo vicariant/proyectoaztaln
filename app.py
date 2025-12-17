@@ -1,142 +1,135 @@
 import os
 import requests
-import base64
 from flask import Flask, render_template, request, jsonify
 from groq import Groq
 
 app = Flask(__name__)
 
 # ==========================================
-# 🔑 CREDENCIALES OFICIALES (FIRST INSPIRE)
+# 🔑 CONFIGURACIÓN DE LLAVES (API KEYS)
 # ==========================================
-# Estas son las que me diste del correo:
+
+# 1. LLAVES DE LA API OFICIAL DE FIRST (FTC EVENTS)
+# Estas son las que recibiste en el correo.
 FTC_USERNAME = os.environ.get("FTC_USERNAME", "tennyson")
 FTC_TOKEN = os.environ.get("FTC_TOKEN", "5EB69BCF-B53C-4B69-8874-CBF204FAD462")
-GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+BASE_URL = "https://ftc-events.firstinspires.org/v2.0/2025" # Temporada 2025-2026
 
-# Configuración
+# 2. LLAVE DE INTELIGENCIA ARTIFICIAL (GROQ)
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
-SEASON = "2025" # Temporada DECODE (2025-2026)
 
 @app.route("/")
-def index(): return render_template("ftc.html")
+def index():
+    return render_template("ftc.html")
 
-# --- API 1: CHATBOT JUEZ ---
+# ==========================================
+# API 1: CHATBOT JUEZ (IA)
+# ==========================================
 @app.route("/api/nasa-rag", methods=["POST"])
 def nasa_chat():
     try:
-        q = request.json.get('user_query')
-        if not client: return jsonify({"answer": "IA Juez desconectada (Falta API Key)."})
+        data = request.json
+        user_query = data.get('user_query')
         
-        # Prompt de Juez Oficial
-        role_msg = """Eres el Juez Principal (Head Referee) de FTC DECODE. 
-        Tus respuestas deben ser basadas estrictamente en el Game Manual Part 1 y 2.
-        Sé breve, profesional y usa terminología oficial (Alliance, SkyStone, etc)."""
+        if not client: 
+            return jsonify({"answer": "IA Desconectada. Configura GROQ_API_KEY."})
+            
+        role_msg = """Eres la IA Juez Oficial de FTC (First Tech Challenge).
+        Responde dudas del reglamento 'DECODE' de forma breve, técnica y neutral."""
         
         chat_completion = client.chat.completions.create(
-            messages=[{"role": "system", "content": role_msg}, {"role": "user", "content": q}],
+            messages=[{"role": "system", "content": role_msg}, {"role": "user", "content": user_query}],
             model="llama-3.3-70b-versatile", temperature=0.5
         )
         return jsonify({"answer": chat_completion.choices[0].message.content})
-    except: return jsonify({"answer": "Error de comunicación con la mesa de jueces."})
+    except: return jsonify({"answer": "Error de conexión neuronal."})
 
-# --- API 2: CONEXIÓN OFICIAL (FIRST EVENTS API) ---
+# ==========================================
+# API 2: CONEXIÓN OFICIAL FIRST (DATOS REALES)
+# ==========================================
 @app.route("/api/ftc-mexico-data", methods=["GET"])
-def ftc_official_data():
-    data = {"events": [], "teams": [], "source": "BACKUP_SYSTEM"}
+def ftc_data():
+    data = {"events": [], "teams": [], "source": "BACKUP"}
     
-    # Intentamos conectar con la API Oficial de FIRST
-    if FTC_TOKEN:
-        try:
-            # La API Oficial usa Autenticación Básica (Usuario + Token)
-            auth = (FTC_USERNAME, FTC_TOKEN)
-            base_url = f"https://ftc-events.firstinspires.org/v2.0/{SEASON}"
-            
-            # 1. PEDIR EVENTOS EN MÉXICO
-            # Endpoint oficial: /events?country=MX
-            res_ev = requests.get(f"{base_url}/events?country=MX", auth=auth)
-            
-            if res_ev.status_code == 200:
-                events_list = res_ev.json().get('events', [])
-                for ev in events_list:
-                    data["events"].append({
-                        "n": ev['name'],
-                        "d": ev['dateStart'].split('T')[0], # Formato fecha
-                        "c": f"{ev['city']}, {ev['stateProv']}",
-                        "k": ev['code'], # Código del evento
-                        "type": "CMP" if "Championship" in ev['name'] else "QT"
-                    })
-                data["source"] = "OFFICIAL_FIRST_API"
-
-           # 2. PEDIR EQUIPOS (FULL LIST)
-            # La API oficial permite listar equipos por país.
-            # Endpoint: /teams?country=MX
-            res_tm = requests.get(f"{base_url}/teams?country=MX", auth=auth)
-            
-            if res_tm.status_code == 200:
-                teams_list = res_tm.json().get('teams', [])
-                for t in teams_list:
-                    data["teams"].append({
-                        "id": t['teamNumber'],
-                        "n": t['nameShort'],
-                        "l": f"{t['city']}, {t['stateProv']}",
-                        "r": t['rookieYear'],
-                        "rp": 0 # El RP se calcula individualmente al abrir el modal para ahorrar recursos
-                    })
-                
-            # Nota: La API oficial es estricta con límites. 
-            # Para este demo, simularemos la data de equipos basada en la lista verde para no saturar tu token 
-            # o bloquear la carga de la página, pero marcaremos la fuente como híbrida.
-            
-            # Si quieres datos reales de un equipo específico: GET /teams?teamNumber=28254
-            
-        except Exception as e:
-            print(f"Error API Oficial: {e}")
-
-    # --- DATOS DE RESPALDO / SIMULACIÓN DECODE ---
-    # (Esto se activa si la temporada 2025 aún no tiene datos cargados en el servidor oficial)
-    if not data["events"]:
-        data["source"] = "SIMULATION_DECODE_25"
-        data["events"] = [
-            {"n": "Torneo Regional Cuautitlán", "d": "2024-11-17", "c": "Cuautitlán, MEX", "k": "MXCUA", "type": "QT"},
-            {"n": "Torneo Regional CDMX", "d": "2024-12-01", "c": "CDMX, CMX", "k": "MXCMX", "type": "QT"},
-            {"n": "Mexico Championship", "d": "2025-02-02", "c": "CDMX, CMX", "k": "MXCMP", "type": "CMP"}
-        ]
+    # AUTENTICACIÓN OFICIAL (Basic Auth)
+    auth = (FTC_USERNAME, FTC_TOKEN)
     
-    # Generamos los equipos de la Lista Verde para el frontend
+    try:
+        # 1. OBTENER EQUIPOS DE MÉXICO (Endpoint Oficial)
+        # Pedimos todos los equipos registrados en el país "MX"
+        res_teams = requests.get(f"{BASE_URL}/teams?country=MX", auth=auth)
+        
+        if res_teams.status_code == 200:
+            teams_list = res_teams.json().get('teams', [])
+            for t in teams_list:
+                data["teams"].append({
+                    "id": t['teamNumber'],
+                    "n": t['nameShort'],
+                    "l": f"{t['city']}, {t['stateProv']}",
+                    "r": t['rookieYear'],
+                    "rp": 0 # El RP se calcula en el detalle
+                })
+            data["source"] = "OFFICIAL_API_V2"
+
+        # 2. OBTENER EVENTOS DE MÉXICO
+        res_events = requests.get(f"{BASE_URL}/events?country=MX", auth=auth)
+        if res_events.status_code == 200:
+            events_list = res_events.json().get('events', [])
+            for ev in events_list:
+                data["events"].append({
+                    "n": ev['name'],
+                    "d": ev['dateStart'].split('T')[0],
+                    "c": f"{ev['city']}, {ev['stateProv']}",
+                    "k": "CMP" if "Championship" in ev['name'] else "QT"
+                })
+
+    except Exception as e:
+        print(f"Error conectando a FIRST: {e}")
+
+    # --- DATOS DE RESPALDO (Por si falla la conexión o es muy temprano en la temporada) ---
     if not data["teams"]:
-        green_list = ['17625','16818','6584','21735','21546','28254','15912','26961','22571','28255','23619']
-        import random
-        for t_id in green_list:
-            data["teams"].append({
-                "id": t_id,
-                "n": f"Team {t_id}",
-                "l": "México, MX",
-                "r": 2020 + (int(t_id) % 5),
-                "rp": random.randint(130, 160) # Simulación de RP altos
-            })
+        data["teams"] = [
+            {"id": 28254, "n": "WAACHMA", "l": "Tecámac, MEX", "r": 2024, "rp": 0},
+            {"id": 28255, "n": "TECHKALLI", "l": "Tecámac, MEX", "r": 2024, "rp": 0},
+            {"id": 11111, "n": "VOLTEC", "l": "Monterrey, NL", "r": 2016, "rp": 0}
+        ]
+        data["source"] = "SIMULATION_MODE"
+
+    if not data["events"]:
+        data["events"] = [
+            {"n": "Regional CDMX (Simulado)", "d": "2025-12-01", "c": "CDMX", "k": "QT"},
+            {"n": "Mexico Championship (Simulado)", "d": "2026-02-02", "c": "CDMX", "k": "CMP"}
+        ]
 
     return jsonify(data)
 
-# --- API 3: DETALLE DE EQUIPO ---
+# ==========================================
+# API 3: DETALLE DE EQUIPO (SIMULACIÓN INTELIGENTE)
+# ==========================================
 @app.route("/api/team-detail/<id>")
 def team_detail(id):
-    # Aquí podríamos pedir a la API Oficial: /awards/2025/teams/{id}
-    # Por ahora mantenemos la simulación para velocidad
+    # La API oficial limita mucho las llamadas por minuto. 
+    # Para que tu página no se bloquee, simularemos los puntos (RP) y premios
+    # basándonos en si el equipo está en tu "Lista Verde" o al azar.
+    
     import random
+    
+    # Lista de equipos "TOP" que suelen ganar premios
+    top_teams = ["28254", "28255", "11111", "16380"]
+    
     awards = []
-    # Simular premios si es un equipo "fuerte"
-    if int(id) > 10000:
-        pool = ["Inspire Award Winner", "Winning Alliance Captain", "Think Award", "Connect Award"]
-        for _ in range(random.randint(1,3)):
-            awards.append({"award_name": random.choice(pool)})
-            
+    rp = random.randint(50, 200) # RP Base
+    
+    # Si es uno de tus equipos, le damos mejores stats simulados
+    if str(id) in top_teams:
+        rp = random.randint(250, 400)
+        awards = [{"award_name": "Inspire Award Winner"}, {"award_name": "Winning Alliance Captain"}]
+    
     return jsonify({
-        "rankings": {"rank": random.randint(1, 10), "rp": random.randint(100, 300)},
+        "rankings": {"rp": rp, "rank": random.randint(1, 20)},
         "awards": awards
     })
 
 if __name__ == "__main__":
     app.run(debug=True)
-    
-
