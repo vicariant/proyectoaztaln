@@ -3,33 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FTC DECODE Dashboard - Scouting 2025-2026</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>FTC DECODE Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        /* === ESTILOS GENERALES === */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: 'Rajdhani', sans-serif;
             background: linear-gradient(135deg, #050505 0%, #1a1a2e 100%);
             color: #e0e0e0;
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+        .container { max-width: 1600px; margin: 0 auto; padding: 20px; }
 
+        /* HEADER */
         header {
             text-align: center;
             padding: 30px 0;
-            background: linear-gradient(90deg, rgba(255,215,0,0.1) 0%, rgba(255,107,53,0.1) 100%);
+            background: linear-gradient(90deg, rgba(255, 215, 0, .1) 0%, rgba(255, 107, 53, .1) 100%);
             border-bottom: 3px solid #ffd700;
             margin-bottom: 30px;
             position: relative;
@@ -39,18 +32,13 @@
         header::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,215,0,0.3), transparent);
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 215, 0, .3), transparent);
             animation: scan 3s infinite;
         }
 
-        @keyframes scan {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
+        @keyframes scan { 0% { left: -100%; } 100% { left: 100%; } }
 
         h1 {
             font-family: 'Orbitron', monospace;
@@ -59,9 +47,6 @@
             background: linear-gradient(45deg, #ffd700, #ff6b35);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 30px rgba(255,215,0,0.3);
-            position: relative;
         }
 
         .subtitle {
@@ -71,6 +56,7 @@
             letter-spacing: 3px;
         }
 
+        /* GRID PRINCIPAL */
         .main-grid {
             display: grid;
             grid-template-columns: 1fr 350px;
@@ -78,64 +64,40 @@
             margin-bottom: 30px;
         }
 
-        .data-section {
-            background: rgba(26, 26, 46, 0.8);
+        .data-section, .game-panel, .chatbot-section {
+            background: rgba(26, 26, 46, .8);
             border: 2px solid #ffd700;
             border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 0 30px rgba(255,215,0,0.2);
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, .2);
         }
 
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
+        /* PESTAÑAS */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        
         .tab-btn {
             flex: 1;
             padding: 15px;
-            background: rgba(255,215,0,0.1);
+            background: rgba(255, 215, 0, .1);
             border: 2px solid #ffd700;
             color: #ffd700;
             font-family: 'Orbitron', monospace;
-            font-size: 1em;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all .3s;
             border-radius: 8px;
         }
 
-        .tab-btn:hover {
-            background: rgba(255,215,0,0.3);
-            transform: translateY(-2px);
-        }
+        .tab-btn:hover { background: rgba(255, 215, 0, .3); transform: translateY(-2px); }
+        .tab-btn.active { background: #ffd700; color: #050505; box-shadow: 0 0 20px rgba(255, 215, 0, .5); }
 
-        .tab-btn.active {
-            background: #ffd700;
-            color: #050505;
-            box-shadow: 0 0 20px rgba(255,215,0,0.5);
-        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn .5s; }
 
-        .tab-content {
-            display: none;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.5s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-
+        /* TABLAS */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        
         th {
             background: linear-gradient(135deg, #ffd700 0%, #ff6b35 100%);
             color: #050505;
@@ -143,36 +105,15 @@
             text-align: left;
             font-family: 'Orbitron', monospace;
             font-weight: 700;
-            letter-spacing: 1px;
         }
 
-        td {
-            padding: 12px 15px;
-            border-bottom: 1px solid rgba(255,215,0,0.2);
-            transition: all 0.3s;
-        }
+        td { padding: 12px 15px; border-bottom: 1px solid rgba(255, 215, 0, .2); transition: all .3s; }
+        tr:hover { background: rgba(255, 107, 53, .1); cursor: pointer; }
 
-        tr:hover {
-            background: rgba(255,107,53,0.1);
-            cursor: pointer;
-        }
-
-        .game-panel {
-            background: rgba(26, 26, 46, 0.9);
-            border: 2px solid #ff6b35;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 0 30px rgba(255,107,53,0.2);
-        }
-
-        .game-title {
-            font-family: 'Orbitron', monospace;
-            font-size: 1.5em;
-            color: #ff6b35;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
+        /* JUEGO (BUSCAMINAS) */
+        .game-panel { border-color: #ff6b35; box-shadow: 0 0 30px rgba(255, 107, 53, .2); }
+        .game-title { font-family: 'Orbitron', monospace; color: #ff6b35; font-size: 1.5em; text-align: center; margin-bottom: 15px; }
+        
         .game-grid {
             display: grid;
             grid-template-columns: repeat(8, 1fr);
@@ -182,54 +123,23 @@
 
         .game-cell {
             aspect-ratio: 1;
-            background: rgba(255,215,0,0.1);
+            background: rgba(255, 215, 0, .1);
             border: 1px solid #ffd700;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             font-size: 1.2em;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all .2s;
             border-radius: 4px;
         }
 
-        .game-cell:hover {
-            background: rgba(255,215,0,0.3);
-            transform: scale(1.1);
-        }
+        .game-cell:hover { background: rgba(255, 215, 0, .3); transform: scale(1.1); }
+        .game-cell.revealed { background: rgba(100, 100, 100, .5); cursor: default; }
+        .game-cell.mine { background: rgba(255, 0, 0, .5); }
 
-        .game-cell.revealed {
-            background: rgba(100,100,100,0.5);
-            cursor: default;
-        }
-
-        .game-cell.mine {
-            background: rgba(255,0,0,0.5);
-        }
-
-        .game-stats {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-            padding: 10px;
-            background: rgba(255,215,0,0.1);
-            border-radius: 8px;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-label {
-            font-size: 0.8em;
-            color: #ff6b35;
-        }
-
-        .stat-value {
-            font-size: 1.5em;
-            font-weight: 700;
-            color: #ffd700;
-        }
+        .game-stats { display: flex; justify-content: space-between; margin-top: 15px; padding: 10px; background: rgba(255, 215, 0, .1); border-radius: 8px; }
+        .stat-item { text-align: center; }
+        .stat-label { font-size: .8em; color: #ff6b35; }
+        .stat-value { font-size: 1.5em; font-weight: 700; color: #ffd700; }
 
         .game-btn {
             width: 100%;
@@ -238,74 +148,42 @@
             border: none;
             color: #050505;
             font-family: 'Orbitron', monospace;
-            font-size: 1em;
             font-weight: 700;
             cursor: pointer;
             border-radius: 8px;
             margin-top: 10px;
-            transition: all 0.3s;
+            transition: all .3s;
         }
+        .game-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(255, 107, 53, .5); }
 
-        .game-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(255,107,53,0.5);
-        }
-
-        .chatbot-section {
-            margin-top: 20px;
-            background: rgba(26, 26, 46, 0.8);
-            border: 2px solid #ffd700;
-            border-radius: 15px;
-            padding: 20px;
-        }
-
-        .chatbot-title {
-            font-family: 'Orbitron', monospace;
-            font-size: 1.3em;
-            color: #ffd700;
-            margin-bottom: 15px;
-        }
-
+        /* CHATBOT */
+        .chatbot-section { margin-top: 20px; }
+        .chatbot-title { font-family: 'Orbitron', monospace; font-size: 1.3em; color: #ffd700; text-align: center; margin-bottom: 15px; }
+        
         .chat-messages {
             height: 200px;
             overflow-y: auto;
-            background: rgba(0,0,0,0.3);
+            background: rgba(0, 0, 0, .3);
             border: 1px solid #ffd700;
             border-radius: 8px;
             padding: 10px;
             margin-bottom: 10px;
         }
 
-        .chat-message {
-            margin-bottom: 10px;
-            padding: 8px;
-            border-radius: 5px;
-        }
+        .chat-message { margin-bottom: 10px; padding: 8px; border-radius: 5px; }
+        .user-message { background: rgba(255, 107, 53, .2); text-align: right; color: #ffb899; }
+        .bot-message { background: rgba(255, 215, 0, .2); color: #fff5cc; }
 
-        .user-message {
-            background: rgba(255,107,53,0.2);
-            text-align: right;
-        }
-
-        .bot-message {
-            background: rgba(255,215,0,0.2);
-        }
-
-        .chat-input {
-            display: flex;
-            gap: 10px;
-        }
-
+        .chat-input { display: flex; gap: 10px; }
         .chat-input input {
             flex: 1;
             padding: 10px;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, .5);
             border: 1px solid #ffd700;
             color: #e0e0e0;
             font-family: 'Rajdhani', sans-serif;
             border-radius: 5px;
         }
-
         .chat-input button {
             padding: 10px 20px;
             background: #ffd700;
@@ -315,29 +193,22 @@
             font-weight: 700;
             cursor: pointer;
             border-radius: 5px;
-            transition: all 0.3s;
+            transition: all .3s;
         }
+        .chat-input button:hover { background: #ff6b35; }
 
-        .chat-input button:hover {
-            background: #ff6b35;
-        }
-
+        /* MODAL */
         .modal {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, .8);
             z-index: 1000;
             align-items: center;
             justify-content: center;
         }
-
-        .modal.active {
-            display: flex;
-        }
+        .modal.active { display: flex; }
 
         .modal-content {
             background: linear-gradient(135deg, #1a1a2e 0%, #050505 100%);
@@ -348,119 +219,41 @@
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
-            box-shadow: 0 0 50px rgba(255,215,0,0.5);
-            animation: modalSlideIn 0.5s;
+            box-shadow: 0 0 50px rgba(255, 215, 0, .5);
+            animation: modalSlideIn .5s;
         }
 
-        @keyframes modalSlideIn {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+        @keyframes modalSlideIn { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #ffd700;
-        }
-
-        .modal-title {
-            font-family: 'Orbitron', monospace;
-            font-size: 1.8em;
-            color: #ffd700;
-        }
-
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #ffd700; }
+        .modal-title { font-family: 'Orbitron', monospace; font-size: 1.8em; color: #ffd700; }
+        
         .close-btn {
             background: #ff6b35;
             border: none;
             color: #fff;
             font-size: 1.5em;
-            width: 35px;
-            height: 35px;
+            width: 35px; height: 35px;
             border-radius: 50%;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all .3s;
         }
+        .close-btn:hover { transform: rotate(90deg); background: #ffd700; color: #050505; }
 
-        .close-btn:hover {
-            transform: rotate(90deg);
-            background: #ffd700;
-            color: #050505;
-        }
+        .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255, 215, 0, .2); }
+        .info-label { font-weight: 700; color: #ff6b35; }
+        
+        .badge { display: inline-block; padding: 8px 15px; border-radius: 20px; font-weight: 700; font-size: .9em; margin: 5px; }
+        .badge-green { background: linear-gradient(135deg, #0f0 0%, #0c0 100%); color: #050505; box-shadow: 0 0 20px rgba(0, 255, 0, .5); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        
+        .badge-yellow { background: linear-gradient(135deg, #ffd700 0%, #ff6b35 100%); color: #050505; }
+        .badge-red { background: linear-gradient(135deg, #ff6b35 0%, red 100%); color: #fff; }
+        
+        .award-item { background: rgba(255, 215, 0, .1); padding: 10px; margin: 5px 0; border-left: 3px solid #ffd700; border-radius: 5px; }
+        .loading { text-align: center; padding: 20px; color: #ffd700; font-size: 1.2em; }
 
-        .team-info {
-            margin-bottom: 20px;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255,215,0,0.2);
-        }
-
-        .info-label {
-            font-weight: 700;
-            color: #ff6b35;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-weight: 700;
-            font-size: 0.9em;
-            margin: 5px;
-        }
-
-        .badge-green {
-            background: linear-gradient(135deg, #00ff00 0%, #00cc00 100%);
-            color: #050505;
-            box-shadow: 0 0 20px rgba(0,255,0,0.5);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .badge-yellow {
-            background: linear-gradient(135deg, #ffd700 0%, #ff6b35 100%);
-            color: #050505;
-        }
-
-        .badge-red {
-            background: linear-gradient(135deg, #ff6b35 0%, #ff0000 100%);
-            color: #fff;
-        }
-
-        .awards-list {
-            margin-top: 15px;
-        }
-
-        .award-item {
-            background: rgba(255,215,0,0.1);
-            padding: 10px;
-            margin: 5px 0;
-            border-left: 3px solid #ffd700;
-            border-radius: 5px;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #ffd700;
-            font-size: 1.2em;
-        }
-
-        @media (max-width: 1200px) {
-            .main-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+        @media (max-width: 1200px) { .main-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -476,34 +269,19 @@
                     <button class="tab-btn active" onclick="switchTab('events')">📅 EVENTOS</button>
                     <button class="tab-btn" onclick="switchTab('teams')">🤖 EQUIPOS</button>
                 </div>
-
+                
                 <div id="events-tab" class="tab-content active">
                     <div class="loading" id="events-loading">Cargando eventos...</div>
-                    <table id="events-table" style="display: none;">
-                        <thead>
-                            <tr>
-                                <th>Evento</th>
-                                <th>Fecha</th>
-                                <th>Ciudad</th>
-                                <th>Venue</th>
-                            </tr>
-                        </thead>
+                    <table id="events-table" style="display:none">
+                        <thead><tr><th>Evento</th><th>Fecha</th><th>Ciudad</th><th>Estado</th></tr></thead>
                         <tbody id="events-tbody"></tbody>
                     </table>
                 </div>
 
                 <div id="teams-tab" class="tab-content">
                     <div class="loading" id="teams-loading">Cargando equipos...</div>
-                    <table id="teams-table" style="display: none;">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Nombre</th>
-                                <th>Ciudad</th>
-                                <th>RP Total</th>
-                                <th>Rookie</th>
-                            </tr>
-                        </thead>
+                    <table id="teams-table" style="display:none">
+                        <thead><tr><th>#</th><th>Nombre</th><th>Ubicación</th><th>Acción</th></tr></thead>
                         <tbody id="teams-tbody"></tbody>
                     </table>
                 </div>
@@ -513,14 +291,8 @@
                 <div class="game-panel">
                     <div class="game-title">⚠️ PROTOCOLO DE EXCAVACIÓN ⚠️</div>
                     <div class="game-stats">
-                        <div class="stat-item">
-                            <div class="stat-label">Minas</div>
-                            <div class="stat-value" id="mines-left">10</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-label">Seguras</div>
-                            <div class="stat-value" id="safe-cells">54</div>
-                        </div>
+                        <div class="stat-item"><div class="stat-label">Minas</div><div class="stat-value" id="mines-left">10</div></div>
+                        <div class="stat-item"><div class="stat-label">Seguras</div><div class="stat-value" id="safe-cells">54</div></div>
                     </div>
                     <div class="game-grid" id="game-grid"></div>
                     <button class="game-btn" onclick="resetGame()">REINICIAR EXCAVACIÓN</button>
@@ -544,240 +316,210 @@
                 <div class="modal-title" id="modal-team-name">Equipo</div>
                 <button class="close-btn" onclick="closeModal()">×</button>
             </div>
-            <div class="team-info" id="team-details"></div>
+            <div id="team-details"></div>
         </div>
     </div>
 
     <script>
-        // Lista Verde Retroactiva (equipos clasificados automáticamente)
-        const CLAVES_CLASIFICADOS_VERDES = ['28254', '28255', '11111'];
+        const $ = (id) => document.getElementById(id);
+        const $$ = (sel) => document.querySelectorAll(sel);
         
-        // Umbral de RP para clasificación
-        const UMBRAL_RP = 120;
-
-        // Bonificaciones por premios
-        const PREMIOS_BONIFICACION = {
-            'inspire award': 15,
-            'winning alliance': 10,
-            'think award': 10,
-            'connect award': 10,
-            'innovate award': 8,
-            'design award': 8,
-            'control award': 5,
-            'motivate award': 5
-        };
-
-        let eventsData = [];
-        let teamsData = [];
-
-        // Cargar datos al iniciar
+        // --- LISTA VERDE: Equipos ya clasificados (Retroactivo) ---
+        const GREEN_LIST = ['17625', '16818', '6584', '21735', '21546', '28254', '15912', '26961', '22571', '17627', '17626', '21764', '24946', '24976', '28255', '26333', '30311', '16655', '16568', '17755', '12887', '13531', '25951', '23619'];
+        const RP_THRESHOLD = 120;
+        const AWARD_BONUS = { 'inspire': 15, 'winning alliance': 10, 'think': 10, 'connect': 10, 'innovate': 8, 'design': 8, 'control': 5, 'motivate': 5 };
+        
+        let eventsData = [], teamsData = [], gameBoard = [], revealedCells = 0;
+        
         window.addEventListener('DOMContentLoaded', () => {
             loadFTCData();
             initGame();
             addWelcomeMessage();
         });
 
+        // --- CARGA DE DATOS ---
         async function loadFTCData() {
             try {
-                const response = await fetch('/api/ftc-mexico-data');
-                const data = await response.json();
-                
-                eventsData = data.events;
-                teamsData = data.teams;
-                
+                const r = await fetch('/api/ftc-mexico-data');
+                const d = await r.json();
+                eventsData = d.events;
+                teamsData = d.teams;
                 displayEvents();
                 displayTeams();
-            } catch (error) {
-                console.error('Error cargando datos:', error);
-                document.getElementById('events-loading').textContent = 'Error al cargar datos';
-                document.getElementById('teams-loading').textContent = 'Error al cargar datos';
+            } catch (e) {
+                $('events-loading').textContent = 'Error al cargar datos';
+                $('teams-loading').textContent = 'Error al cargar datos';
             }
         }
 
         function displayEvents() {
-            const tbody = document.getElementById('events-tbody');
-            const loading = document.getElementById('events-loading');
-            const table = document.getElementById('events-table');
-            
+            const tbody = $('events-tbody');
             tbody.innerHTML = '';
-            
-            eventsData.forEach(event => {
+            eventsData.forEach(e => {
                 const row = tbody.insertRow();
+                const isLive = e.status.includes("EN CURSO");
                 row.innerHTML = `
-                    <td>${event.event_name}</td>
-                    <td>${event.start_date}</td>
-                    <td>${event.city}</td>
-                    <td>${event.venue}</td>
+                    <td style="font-weight:bold; color:var(--gold)">${e.name}</td>
+                    <td>${e.date}</td>
+                    <td>${e.city || 'MX'}</td>
+                    <td><span class="badge ${isLive ? 'badge-green' : 'badge-yellow'}">${e.status}</span></td>
                 `;
             });
-            
-            loading.style.display = 'none';
-            table.style.display = 'table';
+            $('events-loading').style.display = 'none';
+            $('events-table').style.display = 'table';
         }
 
         function displayTeams() {
-            const tbody = document.getElementById('teams-tbody');
-            const loading = document.getElementById('teams-loading');
-            const table = document.getElementById('teams-table');
-            
+            const tbody = $('teams-tbody');
             tbody.innerHTML = '';
-            
-            teamsData.forEach(team => {
+            teamsData.forEach(t => {
                 const row = tbody.insertRow();
                 row.style.cursor = 'pointer';
-                row.onclick = () => showTeamDetail(team.team_key);
-                
+                row.onclick = () => showTeamDetail(t.id);
                 row.innerHTML = `
-                    <td>${team.team_number}</td>
-                    <td>${team.team_name_short}</td>
-                    <td>${team.city}</td>
-                    <td>${team.rp_total || 0}</td>
-                    <td>${team.rookie_year}</td>
+                    <td style="color:var(--gold); font-family:'Orbitron'">${t.id}</td>
+                    <td>${t.name}</td>
+                    <td>${t.loc}</td>
+                    <td><button class="game-btn" style="padding:5px; font-size:0.8em; margin:0;">VER</button></td>
                 `;
             });
-            
-            loading.style.display = 'none';
-            table.style.display = 'table';
+            $('teams-loading').style.display = 'none';
+            $('teams-table').style.display = 'table';
         }
 
-        async function showTeamDetail(teamKey) {
+        // --- DETALLE Y SCOUTING ---
+        async function showTeamDetail(key) {
             try {
-                const response = await fetch(`/api/team-detail/${teamKey}`);
-                const data = await response.json();
+                $('team-modal').classList.add('active');
+                $('team-details').innerHTML = '<div class="loading">Analizando datos del equipo...</div>';
                 
-                const team = teamsData.find(t => t.team_key === teamKey);
-                const modal = document.getElementById('team-modal');
-                const modalTitle = document.getElementById('modal-team-name');
-                const detailsDiv = document.getElementById('team-details');
+                // 1. Obtener detalles reales
+                const r = await fetch(`/api/team-detail/${key}`);
+                const d = await r.json();
                 
-                modalTitle.textContent = `#${team.team_number} - ${team.team_name_short}`;
-                
-                // Verificar si está en la Lista Verde
-                const esClasificadoVerde = CLAVES_CLASIFICADOS_VERDES.includes(teamKey);
-                
-                let statusBadge = '';
-                let rpTotal = data.rankings?.rp || team.rp_total || 0;
-                
-                if (esClasificadoVerde) {
-                    statusBadge = '<span class="badge badge-green">✅ CLASIFICADO (RETROACTIVO)</span>';
-                } else {
-                    // Calcular bonificación por premios
-                    let bonificacionPremios = 0;
-                    if (data.awards && data.awards.length > 0) {
-                        data.awards.forEach(award => {
-                            const awardName = award.award_name.toLowerCase();
-                            for (const [key, value] of Object.entries(PREMIOS_BONIFICACION)) {
-                                if (awardName.includes(key)) {
-                                    bonificacionPremios += value;
-                                    break;
-                                }
-                            }
-                        });
-                    }
-                    
-                    rpTotal += bonificacionPremios;
-                    
-                    if (rpTotal >= UMBRAL_RP) {
-                        statusBadge = '<span class="badge badge-yellow">🎯 EN ZONA DE PASE</span>';
-                    } else {
-                        statusBadge = '<span class="badge badge-red">⚠️ AÚN NO CLASIFICA</span>';
-                    }
-                }
-                
-                let awardsHTML = '<div class="awards-list"><strong>Premios Ganados:</strong>';
-                if (data.awards && data.awards.length > 0) {
-                    data.awards.forEach(award => {
-                        awardsHTML += `<div class="award-item">🏆 ${award.award_name}</div>`;
+                // Buscar info básica local
+                const t = teamsData.find(x => x.id.toString() === key.toString()) || { name: 'Desconocido', loc: 'MX' };
+                $('modal-team-name').textContent = `#${key} - ${t.name}`;
+
+                // 2. Cálculos
+                const isGreen = GREEN_LIST.includes(key.toString());
+                let rpGame = d.rp || 0;
+                let bonus = 0;
+
+                if (d.awards && d.awards.length > 0) {
+                    d.awards.forEach(a => {
+                        const name = a.award_name.toLowerCase();
+                        for (const [k, v] of Object.entries(AWARD_BONUS)) {
+                            if (name.includes(k)) { bonus += v; break; }
+                        }
                     });
-                } else {
-                    awardsHTML += '<div class="award-item">Sin premios registrados</div>';
                 }
-                awardsHTML += '</div>';
-                
-                detailsDiv.innerHTML = `
-                    <div style="text-align: center; margin-bottom: 20px;">
-                        ${statusBadge}
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Número de Equipo:</span>
-                        <span>${team.team_number}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Ciudad:</span>
-                        <span>${team.city}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Año Rookie:</span>
-                        <span>${team.rookie_year}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">RP Totales:</span>
-                        <span style="color: #ffd700; font-weight: 700; font-size: 1.2em;">${rpTotal}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">Ranking Actual:</span>
-                        <span>${data.rankings?.rank || 'N/A'}</span>
-                    </div>
-                    ${awardsHTML}
+                const totalRP = rpGame + bonus;
+
+                // 3. Estatus
+                let statusBadge = '';
+                if (isGreen) {
+                    statusBadge = '<span class="badge badge-green">✅ CLASIFICADO (RETROACTIVO)</span>';
+                } else if (totalRP >= RP_THRESHOLD) {
+                    statusBadge = '<span class="badge badge-yellow">🎯 EN ZONA DE PASE</span>';
+                } else {
+                    statusBadge = '<span class="badge badge-red">⚠️ AÚN NO CLASIFICA</span>';
+                }
+
+                // 4. Lista de Premios
+                let awardsHtml = '<div style="margin-top:15px;"><strong>Premios Ganados:</strong>';
+                if (d.awards && d.awards.length > 0) {
+                    d.awards.forEach(a => awardsHtml += `<div class="award-item">🏆 ${a.award_name}</div>`);
+                } else {
+                    awardsHtml += '<div class="award-item" style="border-left-color:#555;">Sin premios registrados</div>';
+                }
+                awardsHtml += '</div>';
+
+                // 5. Render Final
+                $('team-details').innerHTML = `
+                    <div style="text-align:center; margin-bottom:20px">${statusBadge}</div>
+                    <div class="info-row"><span class="info-label">Ubicación:</span><span>${t.loc}</span></div>
+                    <div class="info-row"><span class="info-label">RP Juego:</span><span>${rpGame}</span></div>
+                    <div class="info-row"><span class="info-label">RP Bonus:</span><span style="color:var(--gold)">+${bonus}</span></div>
+                    <div class="info-row" style="border-top:1px dashed #555; margin-top:5px;"><span class="info-label" style="font-size:1.2em">TOTAL RP:</span><span style="color:#fff; font-weight:900; font-size:1.4em">${totalRP}</span></div>
+                    ${awardsHtml}
                 `;
-                
-                modal.classList.add('active');
-            } catch (error) {
-                console.error('Error cargando detalles del equipo:', error);
-                alert('Error al cargar los detalles del equipo');
+
+            } catch (e) {
+                console.error(e);
+                $('team-details').innerHTML = '<div style="color:red; text-align:center;">Error al conectar con la base de datos TOA.</div>';
             }
         }
 
-        function closeModal() {
-            document.getElementById('team-modal').classList.remove('active');
-        }
+        function closeModal() { $('team-modal').classList.remove('active'); }
 
         function switchTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            $$('.tab-btn').forEach(b => b.classList.remove('active'));
+            $$('.tab-content').forEach(c => c.classList.remove('active'));
             
-            event.target.classList.add('active');
-            document.getElementById(`${tab}-tab`).classList.add('active');
+            // Lógica simple para activar botón y contenido
+            if(tab === 'events') {
+                $$('.tab-btn')[0].classList.add('active');
+                $('events-tab').classList.add('active');
+            } else {
+                $$('.tab-btn')[1].classList.add('active');
+                $('teams-tab').classList.add('active');
+            }
         }
 
-        // Minijuego Buscaminas
-        let gameBoard = [];
-        let minesCount = 10;
-        let revealedCells = 0;
+        // --- CHATBOT ---
+        function addWelcomeMessage() {
+            $('chat-messages').innerHTML = '<div class="chat-message bot-message">⚖️ Hola, soy el Juez Neutral de FTC. Pregunta sobre: puntos, premios, clasificación, robot, autónomo, teleop, endgame y faltas.</div>';
+        }
 
+        async function sendMessage() {
+            const input = $('chat-input');
+            const q = input.value.trim();
+            if (!q) return;
+
+            const msg = $('chat-messages');
+            msg.innerHTML += `<div class="chat-message user-message">${q}</div>`;
+            input.value = '';
+            msg.scrollTop = msg.scrollHeight;
+
+            try {
+                // CORRECCIÓN: Enviar modo 'ftc' y user_query correcto
+                const r = await fetch('/api/nasa-rag', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_query: q, mode: 'ftc', lang: 'es' })
+                });
+                const d = await r.json();
+                // CORRECCIÓN: Usar d.answer en lugar de d.response
+                msg.innerHTML += `<div class="chat-message bot-message">${d.answer}</div>`;
+                msg.scrollTop = msg.scrollHeight;
+            } catch (e) {
+                msg.innerHTML += '<div class="chat-message bot-message" style="color:red">Error de conexión con el juez.</div>';
+            }
+        }
+
+        $('chat-input').addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage() });
+
+        // --- JUEGO (BUSCAMINAS) ---
         function initGame() {
-            gameBoard = [];
-            revealedCells = 0;
-            const grid = document.getElementById('game-grid');
+            gameBoard = []; revealedCells = 0;
+            const grid = $('game-grid');
             grid.innerHTML = '';
             
-            // Crear tablero 8x8
-            for (let i = 0; i < 64; i++) {
-                gameBoard.push({
-                    mine: false,
-                    revealed: false,
-                    adjacent: 0
-                });
+            // Crear matriz
+            for (let i = 0; i < 64; i++) gameBoard.push({ mine: false, revealed: false, adjacent: 0 });
+            
+            // Poner minas
+            let placed = 0;
+            while (placed < 10) {
+                const p = Math.floor(Math.random() * 64);
+                if (!gameBoard[p].mine) { gameBoard[p].mine = true; placed++; }
             }
             
-            // Colocar minas
-            let minesPlaced = 0;
-            while (minesPlaced < minesCount) {
-                const pos = Math.floor(Math.random() * 64);
-                if (!gameBoard[pos].mine) {
-                    gameBoard[pos].mine = true;
-                    minesPlaced++;
-                }
-            }
+            // Calcular adyacentes
+            for (let i = 0; i < 64; i++) if (!gameBoard[i].mine) gameBoard[i].adjacent = countMines(i);
             
-            // Calcular números adyacentes
-            for (let i = 0; i < 64; i++) {
-                if (!gameBoard[i].mine) {
-                    gameBoard[i].adjacent = countAdjacentMines(i);
-                }
-            }
-            
-            // Crear celdas visuales
+            // Renderizar
             for (let i = 0; i < 64; i++) {
                 const cell = document.createElement('div');
                 cell.className = 'game-cell';
@@ -785,125 +527,53 @@
                 cell.onclick = () => revealCell(i);
                 grid.appendChild(cell);
             }
-            
             updateStats();
         }
 
-        function countAdjacentMines(index) {
-            const row = Math.floor(index / 8);
-            const col = index % 8;
-            let count = 0;
-            
+        function countMines(idx) {
+            const row = Math.floor(idx / 8);
+            const col = idx % 8;
+            let c = 0;
             for (let r = -1; r <= 1; r++) {
-                for (let c = -1; c <= 1; c++) {
-                    if (r === 0 && c === 0) continue;
-                    const newRow = row + r;
-                    const newCol = col + c;
-                    if (newRow >= 0 && newRow < 8 && newCol >= 0 && newCol < 8) {
-                        const newIndex = newRow * 8 + newCol;
-                        if (gameBoard[newIndex].mine) count++;
-                    }
+                for (let k = -1; k <= 1; k++) {
+                    if (r === 0 && k === 0) continue;
+                    const nr = row + r, nc = col + k;
+                    if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8 && gameBoard[nr * 8 + nc].mine) c++;
                 }
             }
-            return count;
+            return c;
         }
 
-        function revealCell(index) {
-            if (gameBoard[index].revealed) return;
+        function revealCell(idx) {
+            if (gameBoard[idx].revealed) return;
             
-            const cell = document.querySelector(`[data-index="${index}"]`);
-            gameBoard[index].revealed = true;
+            const cell = document.querySelector(`[data-index="${idx}"]`);
+            gameBoard[idx].revealed = true;
             cell.classList.add('revealed');
-            revealedCells++;
             
-            if (gameBoard[index].mine) {
+            if (gameBoard[idx].mine) {
                 cell.classList.add('mine');
                 cell.textContent = '💣';
-                alert('¡BOOM! Artefacto explosivo detectado. Reiniciando protocolo...');
-                resetGame();
+                alert('¡DERRUMBE! Reiniciando excavación...');
+                setTimeout(initGame, 1000);
             } else {
-                const adj = gameBoard[index].adjacent;
+                revealedCells++;
+                const adj = gameBoard[idx].adjacent;
                 if (adj > 0) {
                     cell.textContent = adj;
-                    cell.style.color = ['#00ff00', '#ffd700', '#ff6b35', '#ff0000'][Math.min(adj - 1, 3)];
+                    cell.style.color = ['#0f0', '#ffd700', '#ff6b35', 'red'][Math.min(adj - 1, 3)];
                 } else {
-                    cell.textContent = '✓';
-                    cell.style.color = '#00ff00';
+                    // Expansión básica para ceros (opcional, simple por ahora)
+                    cell.textContent = ''; 
                 }
                 
-                if (revealedCells === 54) {
-                    alert('¡EXCAVACIÓN COMPLETADA! Todos los artefactos seguros recuperados.');
-                }
+                if (revealedCells === 54) alert('¡ARTEFACTO RECUPERADO! Misión cumplida.');
             }
-            
             updateStats();
         }
 
-        function updateStats() {
-            document.getElementById('mines-left').textContent = minesCount;
-            document.getElementById('safe-cells').textContent = 54 - revealedCells;
-        }
-
-        function resetGame() {
-            initGame();
-        }
-
-        // Chatbot
-        function addWelcomeMessage() {
-            const messagesDiv = document.getElementById('chat-messages');
-            messagesDiv.innerHTML = `
-                <div class="chat-message bot-message">
-                    ⚖️ Hola, soy el Juez Neutral de FTC. Puedo responder preguntas sobre: puntos, premios, clasificación, robot, autónomo, teleop, endgame y faltas.
-                </div>
-            `;
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const question = input.value.trim();
-            
-            if (!question) return;
-            
-            const messagesDiv = document.getElementById('chat-messages');
-            
-            messagesDiv.innerHTML += `
-                <div class="chat-message user-message">
-                    ${question}
-                </div>
-            `;
-            
-            input.value = '';
-            
-            try {
-                const response = await fetch('/api/nasa-rag', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ question })
-                });
-                
-                const data = await response.json();
-                
-                messagesDiv.innerHTML += `
-                    <div class="chat-message bot-message">
-                        Error al procesar la pregunta. Intenta nuevamente.
-                    </div>
-                `;
-            }
-        }
-
-        document.getElementById('chat-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
-        });
+        function updateStats() { $('mines-left').textContent = 10; $('safe-cells').textContent = 54 - revealedCells; }
+        function resetGame() { initGame(); }
     </script>
 </body>
-</html><div class="chat-message bot-message">
-                        ${data.response}
-                    </div>
-                `;
-                
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            } catch (error) {
-                console.error('Error en chatbot:', error);
-                messagesDiv.innerHTML += `
+</html>
