@@ -68,11 +68,22 @@ def ftc_official_data():
                     })
                 data["source"] = "OFFICIAL_FIRST_API"
 
-            # 2. PEDIR EQUIPOS (Búsqueda general o lista específica)
-            # La API oficial no tiene un "dame todos los equipos de MX" fácil en una sola llamada rápida
-            # Así que buscaremos los detalles de TU lista de equipos clasificados para ahorrar peticiones
-            target_teams = ['28254', '28255', '11111', '16380', '12345'] # Añade aquí más si quieres
+           # 2. PEDIR EQUIPOS (FULL LIST)
+            # La API oficial permite listar equipos por país.
+            # Endpoint: /teams?country=MX
+            res_tm = requests.get(f"{base_url}/teams?country=MX", auth=auth)
             
+            if res_tm.status_code == 200:
+                teams_list = res_tm.json().get('teams', [])
+                for t in teams_list:
+                    data["teams"].append({
+                        "id": t['teamNumber'],
+                        "n": t['nameShort'],
+                        "l": f"{t['city']}, {t['stateProv']}",
+                        "r": t['rookieYear'],
+                        "rp": 0 # El RP se calcula individualmente al abrir el modal para ahorrar recursos
+                    })
+                
             # Nota: La API oficial es estricta con límites. 
             # Para este demo, simularemos la data de equipos basada en la lista verde para no saturar tu token 
             # o bloquear la carga de la página, pero marcaremos la fuente como híbrida.
@@ -128,3 +139,4 @@ def team_detail(id):
 if __name__ == "__main__":
     app.run(debug=True)
     
+
